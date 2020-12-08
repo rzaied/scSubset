@@ -129,13 +129,6 @@ ui <- tagList(
           ),
 
           br(),
-          br(),
-          textInput(
-            inputId = "emailAdd",
-            value = "example@gmail.com",
-            label = "Once processing is complete you will be notified via the below email address"
-          ),
-          br(),
           hr(),
           actionButton(
             inputId = 'submitButton',
