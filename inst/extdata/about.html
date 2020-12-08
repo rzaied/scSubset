@@ -1,0 +1,54 @@
+<html>
+<h3><p style="color:green;font-family:Times New Roman;">
+<b> About the app </b> 
+</p></h3> 
+<h5>
+<p style="font-family:Times New Roman;line-height: 1.5">
+This web interface is designed to help users identify the sufficient number of cells to use in their sc-RNA seq experiment. 
+The application interactively interrogates deposited single cell datasets and down-samples them into smaller subsets having 20%, 40%, 60%, 80% and 100% 
+of the parent dataset, respectively. A complete analysis is run on each subset and the results will be displayed. Depending on the type of analysis,
+(i.e. integrated vs single analysis), results are grouped into five possible categories; clustering solutions, variable genes, marker genes, conserved 
+marker genes, and differentially expressed (DE) genes. A score will be assigned to each clustering solution relatively to the parent dataset. The degree of 
+overlap between the result set of each subset and the parent dataset will also be identified. Please selecet <b>"Load Example 10K PBMC Data" </b>for a worked example. <p>
+<p style="font-family:Times New Roman;line-height: 1.5">
+To help in the identification of a suitable subset size, the following criteria can be used:<p>
+<p style="font-family:Times New Roman;line-height: 1.5">
+1)	Subsets resulting in a high marginal increase of the NMI/ARI score. <p>
+<p style="font-family:Times New Roman;line-height: 1.5">
+2)	Subsets whose identified marker genes and/or DE genes have a high degree of overlap with the full dataset.</p>
+<p style="font-family:Times New Roman;line-height: 1.5">
+3)	Subsets that can sufficiently resolve genes of specific biological interest in a given dataset.<p>
+</p> </p></h5>
+<h3> <p style="color:green;font-family:Times New Roman;"> <b> Usage </b>  </p></h3>
+<h5>
+<p style="font-family:Times New Roman;line-height: 1.5">
+Users can upload single or paired datasets; for each dataset, a matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files will be accepted (output from a Cell Ranger run). 
+For each dataset, all three files must be uploaded together. The pattern of the mitochondrial genes should be specified e.g. use "^MT-" for human datasets 
+and "^mt-" for mouse datasets, etc. The desired resolution should also be selected; lower resolutions, however might not clearly resolve the differences between 
+each subset. The default resolution is set to 0.5. By default, only the top 5 most significant genes within each cluster are used for resolving marker and DE genes. This can be
+increased better power but would increase computation time. For a single dataset consisting of 10K cells, the analysis could take ~20 minutes. The same is true for an 
+integrated dataset of 10K cells.  Computation of conserved marker genes for integrated datasets is optional and could add an extra hour to the analysis. 
+<p></h5>
+</p>
+<h3> <p style="color:green;font-family:Times New Roman;">  <b> Results </b> </p> </h3>
+<h4> <p style="font-family:Times New Roman;line-height: 1.5"> <u>Clustering solutions </u> </h4>
+<h5> <p style="font-family:Times New Roman;line-height: 1.5">
+For each subset, clustering solutions will be computed and projected using UMAP projections. Normalized mutual information (NMI) and adjusted Rand index (ARI)
+will be used to score these clustering solutions against the full dataset. Results represent the degree of similarity of cell labells in each subset when compared to the parent dataset.
+Scores closer to 1 have higher similarity to the parent dataset. </p>
+</h5></p>
+ <h4><u>Variable genes </h4> </u> </p>
+<h5> <p style="font-family:Times New Roman;line-height: 1.5">
+For each subset, the top 10 most variable genes will be plotted. This analysis is not applicable for integrated datasets. </p> </h5>
+<p>
+<u> <h4> Marker genes, conserved marker genes, and differentially expressed genes </h4> </u> <p>
+<h5><p style="font-family:Times New Roman;line-height: 1.5">
+These sets of genes are identified for each subset as per Seurat’s analysis pipeline. An UpSet plot will summarise i) the number of genes per subset and 
+ii) the number of overlapping genes. Identified marker/DE genes will be listed in a table where their presence (indicated by “1”) or absence 
+(indicated by “0”) from a particular subset will be noted. Summary statistics for each gene per subset will also computed and displayed. <p>
+<h5><p style="font-family:Times New Roman;line-height: 1.5">
+*DE genes and conserved marker genes are only identified for integrated datasets. <p>
+</p>
+</h5>
+</html>
+

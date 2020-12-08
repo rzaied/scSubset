@@ -1,0 +1,39 @@
+Package: scSubset
+Type: Package
+Title: R package for visualizing the effect of cell count in a scRNA-seq 
+    analysis pipeline
+Version: 0.1.0
+Author@R: c(person(given = "Roan",
+           family = "Zaied",
+           role = c("aut", "cre"),
+           email = "roanzaied@gmail.com",
+           comment = c(ORCID = "0000-0001-5981-9940")),
+    person(given = "Alex",
+           family = "Pancheva",
+           role = "aut"),
+    person(given = "Thomas",
+           family = "Otto",
+           role = c("aut", "ths"),
+           comment= c(ORCID = "0000-0002-1246-7404")))
+Maintainer: Roan Zaied <roanzaied@gmail.com>
+Description: sc-Subset is an R Shiny application that interactively interrogates
+    deposited single cell datasets and down-samples them into smaller subsets to
+    help users identify a suitable number of cells to sequence. 
+License: MIT
+Encoding: UTF-8
+LazyData: true
+biocViews: 
+Imports: shiny, shinythemes, Seurat, DT, shinycssloaders, shinydashboard,
+    shinyjs, shinybusy, aricode, ggplot2, reshape2, dplyr, UpSetR, aricode,
+    ggplot2, reshape2, dplyr, SeuratData, cowplot, patchwork, shinyalert
+RoxygenNote: 7.1.1
+Collate:
+    'startApp.R'
+    'server.R'
+    'ui.R'
+    'autoClustering.R'
+    'findMarkerGenes.R'
+    'integration.R'
+    'findDEgenes.R'
+    'findConservedMarkers.R'
+NeedsCompilation: no
