@@ -33,7 +33,7 @@ findDEgenesUI <- function(id) {
       ),
       hr(),
       downloadLink(ns('downloadDataDE'), 'Download table as .csv'),
-      DTOutput(ns("DEtable")) %>% withSpinner(color =
+      DT::dataTableOutput(ns("DEtable")) %>% withSpinner(color =
                                             "#0dc5c1")
     )
   )),
@@ -46,7 +46,7 @@ findDEgenesUI <- function(id) {
       ),
       downloadLink(ns('downloadDataDE2'), 'Download table as .csv'),
       hr(),
-      DTOutput(ns("sumStatDEtable")) %>% withSpinner(color =
+      DT::dataTableOutput(ns("sumStatDEtable")) %>% withSpinner(color =
                                                    "#0dc5c1")
     )
   )))

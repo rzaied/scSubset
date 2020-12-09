@@ -23,7 +23,7 @@ conservedMarkersUI <- function(id) {
       ),
       downloadLink(ns('downloadData'), 'Download table as .csv'),
       hr(),
-      DTOutput(ns("markerTable")) %>% withSpinner(color =
+      DT::dataTableOutput(ns("markerTable")) %>% withSpinner(color =
                                                 "#0dc5c1")
     )
   )),
@@ -36,7 +36,7 @@ conservedMarkersUI <- function(id) {
       ),
       downloadLink(ns('downloadData2'), 'Download table as .csv'),
       hr(),
-      DTOutput(ns("sumStatMarkerTable")) %>% withSpinner(color =
+      DT::dataTableOutput(ns("sumStatMarkerTable")) %>% withSpinner(color =
                                                        "#0dc5c1")
     )
   )))
