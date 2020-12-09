@@ -5,7 +5,6 @@ scSubsetGo <- function() {
     #for app.R
     library(shiny)
     library(shinythemes)
-    library(unixtools)
     library(Seurat)
     library(DT)
     library(shinycssloaders)
