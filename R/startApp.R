@@ -17,8 +17,6 @@ scSubsetGo <- function() {
     library(ggplot2)
     library(reshape2)
     library(dplyr)
-    #set tmp directory
-    library(unixtools)
 
     #for exampleDatar.R
     #to plot bar plot
