@@ -344,8 +344,12 @@ server <- function(input, output, session) {
 
 
       #setting up seurat object
+
+      sc_example_data <-paste0(system.file("extdata",
+                                           "pbmc_filtered_feature_bc_matrix",
+                                           package = "scSubset"), "/")
       dataset="PBMC"
-      seurat.data = Read10X(data.dir = "./inst/extdata/pbmc_filtered_feature_bc_matrix")
+      seurat.data = Read10X(data.dir = sc_example_data)
       seurat = CreateSeuratObject(counts = seurat.data, project = dataset, min.cells = 3, min.features = 200)
       mito="^MT-"
       res=0.6
