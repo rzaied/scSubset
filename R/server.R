@@ -235,7 +235,6 @@ server <- function(input, output, session) {
         #remove unwanted obj once integration done and no conserved markers chosen
         #rm(seurat.combined)
         rm(seurat.data)
-        rm(seurat2.data)
         rm(seurat2)
         rm(seurat)
         rm(seuratObjectsList)

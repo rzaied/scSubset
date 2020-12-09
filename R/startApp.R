@@ -23,6 +23,7 @@ scSubsetGo <- function() {
     library(UpSetR)
 
     #for integration.R
+    library(metap)
     #for NMI/ARI
     library(aricode)
     #to plot bar plot
