@@ -23,7 +23,7 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 biocViews: 
-Imports: shiny, shinythemes, Seurat, DT, shinycssloaders, shinydashboard,
+Imports: shiny, shinythemes, Seurat (<= 3.1.5), DT, shinycssloaders, shinydashboard,
     shinyjs, shinybusy, aricode, ggplot2, reshape2, dplyr, UpSetR, aricode,
     ggplot2, reshape2, dplyr, cowplot, patchwork, shinyalert
 RoxygenNote: 7.1.1
