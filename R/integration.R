@@ -41,9 +41,15 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
   seurat2 = subset(seurat2, subset = nFeature_RNA > 200 &
                      nFeature_RNA < 8000 & percent.mt < 14)
 
+  print("line 44 integration")
+ # seurat = SCTransform(seurat, vars.to.regress = "percent.mt", verbose = TRUE)
 
-  seurat = SCTransform(seurat, vars.to.regress = "percent.mt", verbose = TRUE)
-  seurat2 = SCTransform(seurat2, vars.to.regress = "percent.mt", verbose = TRUE)
+  seurat <- NormalizeData(seurat, verbose = TRUE)
+  seurat <- FindVariableFeatures(seurat, selection.method = "vst", nfeatures = 2000)
+#  seurat2 = SCTransform(seurat2, vars.to.regress = "percent.mt", verbose = TRUE)
+
+  seurat2 <- NormalizeData(seurat2, verbose = TRUE)
+  seurat2 <- FindVariableFeatures(seurat2, selection.method = "vst", nfeatures = 2000)
 
   seurat.anchors <-
     FindIntegrationAnchors(object.list = list(seurat, seurat2),
