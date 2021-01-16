@@ -77,7 +77,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
     print(subsetSize)
 
     #update progress bar, following on from 0.2.
-    update_modal_progress((i + 5) / 20)
+   # update_modal_progress((i + 5) / 20)
 
     levelsList = levels(seuratObjectsList[[i]])
   #  origlevelsList[[i]] = levelsList
@@ -239,7 +239,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
 
 
 
-return(seuratObjectsList)
+return(combinedDEgenesTable)
 }
 
 

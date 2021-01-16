@@ -35,7 +35,6 @@ scSubsetGo <- function() {
     #for filter() function
     library(dplyr)
     library(shinyalert)
-    library(shinyalert)
     library(cowplot)
     library(patchwork)
 

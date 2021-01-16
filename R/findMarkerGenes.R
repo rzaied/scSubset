@@ -83,7 +83,7 @@ findMarkerGenes <-
       combinedMarkersTableHeader = c(combinedMarkersTableHeader, subsetSize)
 
       #update progress bar, following on from 0.5.
-      update_modal_progress((i + 5) / 12)
+      #update_modal_progress((i + 5) / 12)
     }
     sumStatMarkerTable1 = data.frame(sumStatMarkerTable1)
     sumStatMarkerTable1 <-
@@ -182,6 +182,8 @@ findMarkerGenes <-
       }
     )
 
+    return(combinedMarkersTable)
+
 
 
   }
@@ -207,7 +209,7 @@ tableParserMG <- function(TablesList) {
   #for each table, starting at smallest subset
   for (i in 1:length(TablesList)) {
     #update progress bar, following on from 0.8.
-    update_modal_progress((i + 8) / 13.5)
+  #  update_modal_progress((i + 8) / 13.5)
 
     #to know progress
     print(paste("parsing table:", i, "of 5"))

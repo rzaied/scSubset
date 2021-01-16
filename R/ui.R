@@ -12,7 +12,7 @@ ui <- tagList(
     theme = shinytheme('flatly'),
     tabPanel("About", icon = icon("bars"), fluidRow(column(
       12,
-      wellPanel(style = "background-color: #fff; border-color: #2c3e50; height: 1000px;",
+      wellPanel(style = "background-color: #fff; border-color: #2c3e50; height: 1030px;",
                 includeHTML("inst/extdata/about.html"))
     ))),
 
@@ -28,7 +28,7 @@ ui <- tagList(
       fluidRow(column(
         12,
         wellPanel(
-          style = "background-color: #fff; border-color: #2c3e50; height: 900px;",
+          style = "background-color: #fff; border-color: #2c3e50; height: 1060px;",
           #Load example data option
           actionButton(
             inputId = 'exampleButton',
@@ -55,7 +55,7 @@ ui <- tagList(
           # Input: Select a file ----
           fileInput(
             "file1",
-            "Upload genes.tsv, barcodes.tsv, and matrix.mtx files",
+            "Upload either genes.tsv, barcodes.tsv, and matrix.mtx files or .h5 file ",
             multiple = TRUE,
             accept = c(
               "text/csv/application/zip",
@@ -81,7 +81,7 @@ ui <- tagList(
             # Input: Select a file ----
             fileInput(
               "file2",
-              "Upload genes, barcodes, and matrix files",
+              "Upload either genes.tsv, barcodes.tsv, and matrix.mtx files or .h5 file",
               multiple = TRUE,
               accept = c(
                 "text/csv/application/zip",
@@ -102,6 +102,25 @@ ui <- tagList(
             )
           ),
           br(),
+
+          textInput(
+            inputId = "cost",
+            value = "8",
+            label = "Cost of 1M reads"
+          ),
+
+          textInput(
+            inputId = "depth",
+            value = "50000",
+            label = "Sequencing depth per cell"
+          ),
+
+          textInput(
+            inputId = "libraryPrep",
+            value = "2000",
+            label = "Library prep cost"
+          ),
+
 
           textInput(
             inputId = "organism",

@@ -183,14 +183,6 @@ varGenesUI <- function(id) {
 #this insures clusters are not mislabeled and allows to project query and reference clusters
 #avaiding mislabelling errors
 
-# Load the dataset
-#seurat.data = Read10X(data.dir = "./MyData/neuron_10K_filtered_feature_bc_matrix")
-#seurat.data = Read10X(data.dir = "/data/Roan/pbmc_filtered_feature_bc_matrix")
-# Initialize the Seurat object with the raw (non-normalized data).
-#dataset="PBMC1"
-#dataset2="PBMC2"
-#seurat = CreateSeuratObject(counts = seurat.data, project = dataset, min.cells = 3, min.features = 200)
-#seurat
 
 #' Single Cell Cluster Tab Server
 #'
@@ -213,12 +205,6 @@ scClustering <-
             dataset) {
     seuratObjectsList <- reactiveValues()
 
-    #seurat = clusteringList[1]
-    # mito = "^MT-"
-    #res = 0.1
-    #selectedNumGenes = 5
-    #dataset="PBMC"
-    #mito <- reactive({input$organism})
     print(mito)
     print(res)
 
@@ -233,7 +219,7 @@ scClustering <-
 
     seurat = subset(seurat, subset = nFeature_RNA > 200 &
                       nFeature_RNA < 8000 & percent.mt < 14)
-    rm(seurat.data)
+
     print("line 201, autoclustering")
     #Normalization
     seurat = NormalizeData(seurat,
@@ -261,7 +247,7 @@ scClustering <-
       print(i)
       x = x + 1
       #update progress bar
-      update_modal_progress(x / 10)
+      #update_modal_progress(x / 10)
       print(x)
       #subsetting
       subset = subset(seurat, cells = sample(Cells(seurat), i))
@@ -508,7 +494,7 @@ projectClusters <- function(seuratObjectsList) {
   #to reorder the table by increasing order of projection Quality
   projectionQualityTable$Subset <-
     factor(projectionQualityTable$Subset, levels = projectionQualityTable$Subset[order(projectionQualityTable$NMI)])
-  #meliting to plot multiple y valuesjjuj
+  #meliting to plot multiple y values
   projectionQualityTable = melt(projectionQualityTable, id.vars = 'Subset')
   colnames(projectionQualityTable)[2] = "Key"
 

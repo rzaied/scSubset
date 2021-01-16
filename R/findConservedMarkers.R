@@ -62,7 +62,7 @@ findConservedMarkers <-
                            "")
       print(subsetSize)
       #update progress bar, following on from 0.5
-      update_modal_progress((i + 5) / 10.5)
+     # update_modal_progress((i + 5) / 10.5)
       #list to easily acess the clusters in each subset
       levelsList = levels(seuratObjectsList[[i]])
       #for each cluster in list
