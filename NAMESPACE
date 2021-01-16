@@ -1,5 +1,7 @@
 export(ui)
 export(server)
+export(read_h5)
+export(make_seurat_obj)
 export(scSubsetGo)
 export(scClusteringUI)
 export(varGenesUI)

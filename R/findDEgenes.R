@@ -77,10 +77,10 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
     print(subsetSize)
 
     #update progress bar, following on from 0.2.
-   # update_modal_progress((i + 5) / 20)
+    #update_modal_progress((i + 5) / 20)
 
     levelsList = levels(seuratObjectsList[[i]])
-  #  origlevelsList[[i]] = levelsList
+   #origlevelsList[[i]] = levelsList
     seuratObjectsList[[i]]$celltype.cond <-
       paste(Idents(seuratObjectsList[[i]]),
             seuratObjectsList[[i]]$orig.ident,
@@ -93,44 +93,53 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
     print("Line 95, find DE genes")
     #for each cluster in list
     for (j in 1:length(levelsList)) {
-      #get DE genes across conditions
-      #(in try block incase there are clusters having less than 3 cells,
-      #in which case DE can't be calculated for them)
-      #logfc.threshold is by default 0.25, increasing to 0.4 speeds up the function but could miss weaker signals
-      try(DE.response <-
-            FindMarkers(
-              seuratObjectsList[[i]],
-              ident.1 = paste(levelsList[j], "_", dataset, sep = ""),
-              ident.2 = paste(levelsList[j], "_", dataset2, sep = ""),
-              min.pct = 0.5,
-              logfc.threshold = 0.3,
-              verbose = TRUE
-            ),
-          silent = F)
+
+      #in try catch incase 1: no genes meet filtering criteria
+        #2: some clusters exist in one dataset but not the other
+      tryCatch( {
+
+        DE.response <-
+              FindMarkers(
+                seuratObjectsList[[i]],
+                ident.1 = paste(levelsList[j], "_", dataset, sep = ""),
+                ident.2 = paste(levelsList[j], "_", dataset2, sep = ""),
+                min.pct = 0.5,
+                logfc.threshold = 0.25,
+                verbose = TRUE
+              )
+
       print("Line 112, find DE genes")
-      #find the top 5 positive DE genes
-      #or use all those that have pvalue 0.01, table with 0 if none
-      DE.response = DE.response[DE.response$p_val_adj <= 0.01,]
-      print("Line 116, find DE genes")
-      #get the top 5 most sig genes (or selectedNumGenes)
-      DE_top = DE.response %>% top_n(n = -selectedNumGenes, wt = p_val_adj)
-      #get the 25 top genes with the greatest +ve fold change
-      #top_num=DE.response %>% top_n(n = 5, wt = avg_logFC)
-      #get the 25 top genes with the greatest -ve fold change
-      #bottom_num=DE.response %>% top_n(n = -5, wt = avg_logFC)
-      #DE_top holds DE genes per CLUSTER per SUBSET
-      #DE_top<-rbind(top_num,bottom_num)
-      #add a coloumn with the identity of the cell
-      #(in try block incase there are no genes with adj_pval<0.01)
-      try(DE_top$cluster <- levelsList[[j]], silent = F)
-      print("Line 127, find DE genes")
-      #append those to a combinedDE_top table
-      combinedDE_top = rbind(combinedDE_top, DE_top)
-      #end of inner loop
-      print("Line 130, find DE genes")
+        #find the top 5 positive DE genes
+        #or use all those that have pvalue 0.01, table with 0 if none.
+        DE.response = DE.response[DE.response$p_val_adj <= 0.01,]
+        print("Line 116, find DE genes")
+        #get the top 5 most sig genes (or selectedNumGenes)
+        DE.response = DE.response %>% top_n(n = -selectedNumGenes, wt = p_val_adj)
+        #bottom_num=DE.response %>% top_n(n = -5, wt = avg_logFC)
+        #DE_top holds DE genes per CLUSTER per SUBSET
+        #add a coloumn with the identity of the cell
+        DE.response$cluster <- levelsList[[j]]
+        print("Line 127, find DE genes")
+        #append those to a combinedDE_top table
+        combinedDE_top = rbind(combinedDE_top, DE.response)
+        #end of inner loop
+        print("Line 130, find DE genes")
 
+        },
+      error=function(cond) {
+          message(cond)
+          # Choose a return value in case of error
+          return(NA)
+        },
+        warning=function(cond) {
+          message(cond)
+          # Choose a return value in case of warning
+          return(NULL)
+        },
+        finally={
+        #things to execute regardless
+      })
     }
-
     print("line 134 DEG")
     combinedDE_top = data.frame(combinedDE_top)
     print("Line 135, find DE genes")
@@ -138,7 +147,6 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
     DE_Tables_List[[i]] = combinedDE_top
     #to create variables dynamically and assign them with respective
     #top 10 table "subset_2000top10
-
     # this is just so that the tables dont get overwritten and are saved in env
     #assign(paste("top_DE_",subsetSize, sep = ""), combinedDE_top)
     print("Line 142, find DE genes")

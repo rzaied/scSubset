@@ -398,52 +398,47 @@ renameClusters <- function(seuratObjectsList) {
   #The normalized,filtered, parent dataset
   #instead of below line just use seuratObjList[[5]] to save memory
   # seurat = seuratObjectsList[[x]]
-
+  ref_subset=length(seuratObjectsList)
   #cluster table is 8k, overlap is 10k. predominant is always in 10k.
   #function to rename clusters after subsetting
   print("line 354 autoclustering")
   #for each object
-  for (i in (length(seuratObjectsList) - 1):1) {
+  for (i in (length(seuratObjectsList)):1) {
     #make an empty list of size [max cluster#] to store new names of second subset
     newNames_list <-
-      vector(mode = "character", length = max(as.numeric(seuratObjectsList[[i +
-                                                                              1]]@active.ident)))
+      vector(mode = "character", length = max(as.numeric(seuratObjectsList[[i]]@active.ident)))
     #for each cluster in second object
-    for (j in 0:max(as.numeric(as.character(seuratObjectsList[[i + 1]]@active.ident)))) {
+    for (j in 0:max(as.numeric(as.character(seuratObjectsList[[i]]@active.ident)))) {
       #select all cell_ids where seurat_cluster = j (the smallest cluster) from first subset
       clusterTable <-
         filter(
-          seuratObjectsList[[i + 1]]@meta.data,
-          seuratObjectsList[[i + 1]]@meta.data$seurat_clusters == j
+          seuratObjectsList[[i]]@meta.data,
+          seuratObjectsList[[i]]@meta.data$seurat_clusters == j
         )
       print("line 369 autoclustering")
-      #find corresponding cell ids from largest subset (i.e. originall seurat object, i.e #5) via merging
-      overlappingCells = merge(clusterTable, seuratObjectsList[[5]]@meta.data, by = 0)
+      #find corresponding cell ids from largest subset (i.e. original seurat object, i.e #5) via merging
+      overlappingCells = merge(clusterTable, seuratObjectsList[[ref_subset]]@meta.data, by = 0)
 
-
-      #Which clusters do most of these cells belong to in first subset?
+      #Which clusters do most of these cells belong to in SECOND subset?
       predominantCluster = as.numeric(as.character(Mode(
         overlappingCells$seurat_clusters.y
       )))
       print("line 378 autoclustering")
-      #In position of predominantcluster, store cluster label, j (as per first subset)
+      #In position of predominantcluster, store cluster label, j (as per first SECOND subset)
       #list starts at 1 while clusters start at 0 so mostFreqCluster+1
       newNames_list[[j + 1]] = predominantCluster
       # repeat for next cluster in first table
       newNames_list
     }
     print("line 385 autoclustering")
-    #Rename all clusters as per larger subset
-    names(newNames_list) = levels(seuratObjectsList[[i + 1]])
-    seuratObjectsList[[i + 1]] = RenameIdents(seuratObjectsList[[i + 1]], newNames_list)
-    levels(x = seuratObjectsList[[i + 1]])
+    #Rename all clusters in first subset as per reference subset
+    names(newNames_list) = levels(seuratObjectsList[[i]])
+    seuratObjectsList[[i]] = RenameIdents(seuratObjectsList[[i]], newNames_list)
+    levels(x = seuratObjectsList[[i]])
   }
-
   rm(clusterTable)
   return(seuratObjectsList)
-
 }
-
 
 #' Function to project downsampled subsets against the parent dataset and score projection quality
 #'
@@ -458,16 +453,25 @@ projectClusters <- function(seuratObjectsList) {
   #replace seurat.combined with seuratObjectsList[5] i.e. the original seurat obj
   #CALCULTE PROJECTION QUALITY************************************
   #table to store cluster similarity calculation
+  ref_subset=length(seuratObjectsList)
   projectionQualityTable = c()
+  #percentLabelOverlap=c()
   for (i in 1:(length(seuratObjectsList))) {
     print("line 404 autoclustering")
     overlappingCells = merge(seuratObjectsList[[i]]@active.ident,
-                             seuratObjectsList[[5]]@active.ident,
+                             seuratObjectsList[[ref_subset]]@active.ident,
                              by =
                                0)
     print("line 409 autoclustering")
 
-    #ARI AND NMI FROM PACKAGE ARICODE GOOD
+
+    overlappingCells$x<-as.numeric(as.character(overlappingCells$x))
+    overlappingCells$y<-as.numeric(as.character(overlappingCells$y))
+
+    percent_overlap = colSums(overlappingCells[,2, drop=FALSE] ==
+                                overlappingCells[,3, drop=FALSE]) / nrow(seuratObjectsList[[ref_subset]]@meta.data) * 100
+    percent_overlap<-round(percent_overlap,2)
+    #ARI AND NMI FROM PACKAGE ARICODE
     ARI = ARI(overlappingCells$x, overlappingCells$y)
     #AMI AND NMI ARE BOTH EEXACTLY THE SAME
     #AMI = AMI(overlappingCells$x, overlappingCells$y)
@@ -476,15 +480,15 @@ projectClusters <- function(seuratObjectsList) {
 
     subsetSize = paste(nrow(seuratObjectsList[[i]]@meta.data) / 1000, "K", sep =
                          "")
-    projectionQualityTable = rbind(projectionQualityTable, c(subsetSize, ARI, NMI))
-
+    projectionQualityTable = rbind(projectionQualityTable, c(i, subsetSize, ARI, NMI))
+    #percentLabelOverlap=rbind(percentLabelOverlap, c(subsetSize, percent_overlap))
     print("444 autoclust")
-
   }
-
-
+  #percentLabelOverlap<-data.frame(percentLabelOverlap)
+  #colnames(percentLabelOverlap) = c("Subset", "overlap")
   #rename coloumns
-  colnames(projectionQualityTable) = c("Subset", "ARI", "NMI")
+  #num column is important for setting levels
+  colnames(projectionQualityTable) = c("num","Subset", "ARI", "NMI")
   projectionQualityTable = data.frame(projectionQualityTable)
   projectionQualityTable$ARI = as.numeric(as.character(projectionQualityTable$ARI))
   #projectionQualityTable$AMI=as.numeric(as.character(projectionQualityTable$AMI))
@@ -492,10 +496,10 @@ projectClusters <- function(seuratObjectsList) {
 
   print("454 autoclust")
   #to reorder the table by increasing order of projection Quality
-  projectionQualityTable$Subset <-
-    factor(projectionQualityTable$Subset, levels = projectionQualityTable$Subset[order(projectionQualityTable$NMI)])
-  #meliting to plot multiple y values
-  projectionQualityTable = melt(projectionQualityTable, id.vars = 'Subset')
+ projectionQualityTable$Subset <-
+   factor(projectionQualityTable$Subset, levels = projectionQualityTable$Subset[order(projectionQualityTable$num)])
+  #meliting to plot multiple y values (exclude num coloumn)
+  projectionQualityTable = melt(projectionQualityTable[,2:4], id.vars = 'Subset')
   colnames(projectionQualityTable)[2] = "Key"
 
   print("462 autoclust")

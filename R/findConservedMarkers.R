@@ -67,6 +67,8 @@ findConservedMarkers <-
       levelsList = levels(seuratObjectsList[[i]])
       #for each cluster in list
       for (j in 1:length(levelsList)) {
+
+
         #logfc.threshold is by default 0.25, increasing to 0.4 speeds up the function but could miss weaker signals
         #Find conserved marker genes (marker genes shared b/w both conditions)
         try(conserved.markers <-
@@ -131,6 +133,9 @@ findConservedMarkers <-
 
     #add numbered row names to table
     rownames(sumStatMarkerTable1) <- c(1:nrow(sumStatMarkerTable1))
+
+    #Round Pval
+
     combinedMarkersTable <- tableParserCMG(conservedMarkers_Tables_List, combinedMarkerGenesTableHeader)
     print("line 135 findCMG")
     #plot upsetPlot via combined table
@@ -208,6 +213,7 @@ findConservedMarkers <-
     )
     # update progress bar value
     update_modal_progress(1)
+    return(combinedMarkersTable)
   }
 
 #PARSING TABLE FOR USE IN UPSETR**************************************

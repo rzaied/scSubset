@@ -1,14 +1,3 @@
-#this UI is never actually called
-
-#scIntegrateUI <- function(id) {
-  #namespaces make it so that ids only need to be unique within a namespace and not across the app
-
-#cell filtering
-#500, 4000 fo pbmc 10k. 14 mito
-#200, 8500 form heart 10k, 14 mito
-#500, 2500 from 33k pbmc, 14
-#mouse brain 300, 6000, 20 mito
-
 
 #'  #' Single Cell Integration Tab Server
 #'
@@ -88,9 +77,8 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
 
     #subsetting
     subset = subset(seurat.combined, cells = sample(Cells(seurat.combined), i))
-
     subset <- RunPCA(subset, npcs = 30, verbose = FALSE)
-    # t-SNE and Clustering
+    #t-SNE and Clustering
     #subset<- RunTSNE(subset, reduction="pca")
     #TSNEPlot(subset, reduction= "tsne", label=TRUE)
     #TSNEPlot(subset, reduction= "tsne", split.by="orig.ident")
@@ -147,66 +135,4 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
 
   return(seuratObjectsList)
 }
-
-
-#Function to find mode (most frequent cluster)
-#Mode <- function(x) {
- # ux <- unique(x)
-  #ux[which.max(tabulate(match(x, ux)))]
-#}
-
-
-
-#RENAMING CLUSTERS
-#cluster table is 8k, overlap is 10k. predominant is always in 10k.
-#function to rename clusters after subsetting
-
-#renameClusters <- function(seuratObjectsList) {
-  #The normalized,filtered, parent dataset
- # seurat.combined = seuratObjectsList[[x]]
-
-  #cluster table is 8k, overlap is 10k. predominant is always in 10k.
-  #function to rename clusters after subsetting
-
-  #for each object
-#  for (i in (length(seuratObjectsList) - 1):1) {
-    #make an empty list of size [max cluster#] to store new names of second subset
-   # newNames_list <-
-    #  vector(mode = "character", length = max(as.numeric(seuratObjectsList[[i +
-            #                                                                  1]]@active.ident)))
-    #for each cluster in second object
-#    for (j in 0:max(as.numeric(as.character(seuratObjectsList[[i + 1]]@active.ident)))) {
-      #select all cell_ids where seurat_cluster = j (the smallest cluster) from first subset
-#      clusterTable <-
-  #      filter(
-  #        seuratObjectsList[[i + 1]]@meta.data,
-    #      seuratObjectsList[[i + 1]]@meta.data$seurat_clusters == j
-       # )
-
-      #find corresponding cell ids from largest subset (i.e. originall seurat object) via merging
- #     overlappingCells = merge(clusterTable, seurat.combined@meta.data, by =
-  #                               0)
-
-      #Which clusters do most of these cells belong to in first subset?
- #     predominantCluster = as.numeric(as.character(Mode(
-  #      overlappingCells$seurat_clusters.y
-     # )))
-
-      #In position of predominantcluster, store cluster label, j (as per first subset)
-      #list starts at 1 while clusters start at 0 so mostFreqCluster+1
- #     newNames_list[[j + 1]] = predominantCluster
-      # repeat for next cluster in first table
- #     newNames_list
-  #  }
-
-    #Rename all clusters as per larger subset
-  #  names(newNames_list) = levels(seuratObjectsList[[i + 1]])
- #   seuratObjectsList[[i + 1]] = RenameIdents(seuratObjectsList[[i + 1]], newNames_list)
-  #  levels(x = seuratObjectsList[[i + 1]])
-  #}
-
-
-#  return(seuratObjectsList)
-
-#}
 

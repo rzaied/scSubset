@@ -116,13 +116,6 @@ ui <- tagList(
           ),
 
           textInput(
-            inputId = "libraryPrep",
-            value = "2000",
-            label = "Library prep cost"
-          ),
-
-
-          textInput(
             inputId = "organism",
             value = "^MT-",
             label = "Mitochondrial genes pattern"

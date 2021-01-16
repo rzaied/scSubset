@@ -10,10 +10,10 @@ Author@R: c(person(given = "Roan",
            comment = c(ORCID = "0000-0001-5981-9940")),
     person(given = "Alex",
            family = "Pancheva",
-           role = "aut"),
+           role = "ctb"),
     person(given = "Thomas",
            family = "Otto",
-           role = c("aut", "ths"),
+           role = c("ctb", "ths"),
            comment= c(ORCID = "0000-0002-1246-7404")))
 Maintainer: Roan Zaied <roanzaied@gmail.com>
 Description: sc-Subset is an R Shiny application that interactively interrogates
@@ -37,4 +37,5 @@ Collate:
     'findDEgenes.R'
     'findConservedMarkers.R'
     'computeCost.R'
+    'loadData.R'
 NeedsCompilation: no
