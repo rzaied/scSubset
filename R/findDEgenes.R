@@ -56,7 +56,7 @@ findDEgenesUI <- function(id) {
 
 findDEgenes <- function(input, output, session, seuratObjectsList, dataset1_name, dataset2_name, selectedNumGenes) {
   #UPSET PLOT FOR DE GENES
-
+  print("DE 59")
   #carrying on from Autoclustering_V2.R script,
   combinedDEgenesTableHeader = c("DE_gene")
 
@@ -68,7 +68,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset1_name
   combinedDE_top = c()
   #this table will hold collective DE genes (of all subsets)
   sumStatDEtable1 = c()
-  print(levels(seuratObjectsList[[i]]))
+
   #for each seurat object, add data cloumns
   for (i in 1:(length(seuratObjectsList))) {
     DefaultAssay(seuratObjectsList[[i]]) <- "RNA"
@@ -93,6 +93,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset1_name
     print("Line 95, find DE genes")
     #for each cluster in list
     for (j in 1:length(levelsList)) {
+      print(levelsList)
 
       #in try catch incase 1: no genes meet filtering criteria
         #2: some clusters exist in one dataset but not the other
@@ -133,7 +134,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset1_name
         message(cond)
         print("leaving error line 134")
           # Choose a return value in case of error
-          return(NA)
+          return(NULL)
         },
         warning=function(cond) {
           print("enter warning line 138")
@@ -143,6 +144,8 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset1_name
         },
         finally={
         #things to execute regardless
+          try(print(paste(levelsList[j], "_", dataset1_name, sep = "")))
+          try(print(paste(levelsList[j], "_", dataset2_name, sep = "")))
           print("enter finally line 145")
       })
     }

@@ -21,11 +21,13 @@ computeCostUI <- function(id) {
 computeCost <-
   function(input, output, session, analysis_type, combinedConsMarkersTable,
            combinedMarkersTable, seuratObjectsList, costPerMil, depthPerCell) {
+    print("cost 24")
 
     scCostTable=c()
     #for each subset
     for (i in 1:(length(seuratObjectsList))) {
       print(i)
+      print("cost 30")
       #find number of cells in dataset
       numCells = nrow(seuratObjectsList[[i]]@meta.data)
       print(numCells)
@@ -36,7 +38,7 @@ computeCost <-
 
       #find total number of marker genes in the reference dataset
       reference_num_markers=nrow(combinedMarkersTable[!(combinedMarkersTable[,6]==0),])
-
+      print("cost 41")
 
       #remove rows where marker doesn't exist (marker==0) in both reference and query datasets
       combinedMarkersTable2<-combinedMarkersTable[!(combinedMarkersTable[,(i+1)]==0 & combinedMarkersTable[,6]==0),]
@@ -45,6 +47,7 @@ computeCost <-
       markers_overlap= colSums(combinedMarkersTable2[,(i+1), drop=FALSE]==combinedMarkersTable2[,6, drop=FALSE])/reference_num_markers*100
       markers_overlap<-round(markers_overlap, digits = 2)
 
+      print("cost 50")
 
 
       #find total depth per subset
@@ -53,7 +56,7 @@ computeCost <-
       #find total cost per subset
       cost=((costPerMil*depth)/1000000)
       cost<-round(cost, digits = 3)
-
+      print("cost 59")
       #repeat for conserved marker genes, if user chose to compute it
       if (!combinedConsMarkersTable==0) {
         reference_num_consv_markers=nrow(combinedConsMarkersTable[!(combinedConsMarkersTable[,6]==0),])
@@ -71,7 +74,7 @@ computeCost <-
     }
 }
     scCostTable=data.frame(scCostTable)
-
+    print("cost 77")
     if (analysis_type=="integration" && combinedConsMarkersTable==0) {
       print(analysis_type)
     names(scCostTable)=c("Number of cells", "number of clusters", " % Overlapping DE genes", "cost estimate")
@@ -85,7 +88,7 @@ computeCost <-
       print(analysis_type)
       names(scCostTable)=c("Number of cells", "number of clusters", " % Overlapping markers", "cost estimate")
     }
-
+    print("cost 91")
 
     #table output
     output$costTable <-
@@ -104,7 +107,7 @@ computeCost <-
       rownames = F)
 
 
-
+    print("cost 110")
     output$downloadCostData <- downloadHandler(
       filename = function() {
         paste('costTable_', Sys.Date(), '.csv', sep = '')
