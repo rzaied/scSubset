@@ -8,6 +8,8 @@ server <- function(input, output, session) {
                {
                  #assign uploaded file to seurat.data object
                  print("here")
+                 dataset1_name<-"dataset1"
+                 dataset2_name<-"dataset2"
 
                  if (is.null(input$file1)) {
                    print("empy files")
@@ -20,11 +22,10 @@ server <- function(input, output, session) {
                    print(path)
                    #assign dataset name (for "project" in seurat)
                    #assign manually to avoid errors
-                   dataset_name <- "dataset1"
-                   print(dataset)
+
                    seurat1 <-
                      callModule(read_h5,
-                                "ui", dataset_name, path)
+                                "ui", dataset1_name, path)
                    print("server line 27")
 
                  }
@@ -33,47 +34,12 @@ server <- function(input, output, session) {
                           grepl(".mtx", input$file1$name[1], fixed = TRUE)) {
                    #uploadsDF is a data.frame where columns= name, size, type and datapath of the uploaded files
                    uploadsDF <- input$file1
-                   dataset1_name <- "dataset1"
+
                    seurat1 <-
                      callModule(read_10x,
                                 "ui", dataset1_name, uploadsDF )
                    print("server line 40")
-              #      seurat.data <- reactive({
-              #        req(input$file1)
-              #        print("line 44")
-              #        # uploadsDF is a data.frame where columns= name, size, type and datapath of the uploaded files
-              #        uploadsDF <- input$file1
-              #
-              #        # Name of the temporary directory where files are uploaded
-              #        tempdirname <- dirname(uploadsDF$datapath[1])
-              #        print("line 55")
-              #        print(tempdirname)
-              #        print(uploadsDF$datapath[1])
-              #
-              #         # default file names are 0.tsv, 1.tsv and 0.mtx
-              #        # Use the names coloumn in uploadsDF to rename the files to genes.tsv, barcodes.tsv and matrix.tsv
-              #        # else, files wont be recognized by read10x function
-              #        for (i in 1:nrow(uploadsDF)) {
-              #          file.rename(uploadsDF$datapath[i],
-              #                      paste0(tempdirname, "/", uploadsDF$name[i]))
-              #        }
-              #
-              #        #files can now be read
-              #        seurat.data <- tryCatch({
-              #          seurat.data <- Read10X(data.dir = tempdirname)
-              #        },
-              #        error = function(cond) {
-              #          sendSweetAlert(
-              #            session = session,
-              #            title = "Data format error",
-              #            text = "Ensure that 10X Genomics data were appropriately chosen:
-              # accepted files are either .h5 file or matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files ",
-              #            type = "error"
-              #          )
-              #          return()
-              #        })
-              #
-              #      })
+
                  }
 
                  else {
@@ -111,9 +77,6 @@ server <- function(input, output, session) {
                  #assign resolution
                  res <- input$resolution
 
-                 # #assign dataset name (for "project" in seurat)
-                 # #assign manually to avoid errors
-                 # dataset <- "dataset1"
 
                  #assigns custom name for second dataset, only if integration option was selected
                  if (input$integrationChoice) {
@@ -130,31 +93,11 @@ server <- function(input, output, session) {
                      print(path)
                      #assign dataset name (for "project" in seurat)
                      #assign manually to avoid errors
-                     dataset2_name <- "dataset2"
-                     print(dataset2_name)
                      seurat2 <-
                        callModule(read_h5,
                                   "ui", dataset2_name, path)
                      print("server line 27")
-              #        seurat.data2 <- reactive({
-              #          print("line 117")
-              #          tempdirname <-
-              #            paste0(dirname(input$file2$datapath[1]), "/", "0.h5")
-              #          tempdirname
-              #          seurat.data2 <- tryCatch({
-              #            seurat.data2 <- Read10X_h5(tempdirname)
-              #          },
-              #          error = function(cond) {
-              #            sendSweetAlert(
-              #              session = session,
-              #              title = "Data format error",
-              #              text = "Ensure that 10X Genomics data were appropriately chosen:
-              # accepted files are either .h5 file or matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files ",
-              #              type = "error"
-              #            )
-              #            return()
-              #          })
-              #        })
+
                     }
 
                    #if the second file is of .mtx, .genes, .barcodes formats
@@ -162,53 +105,13 @@ server <- function(input, output, session) {
                             grepl(".mtx", input$file2$name[1], fixed = TRUE)) {
 
                      uploadsDF <- input$file2
-                     dataset2_name <- "dataset2"
+
                      seurat2 <-
                        callModule(read_10x,
-                                  "ui", dataset1_name, uploadsDF )
+                                  "ui", dataset2_name, uploadsDF )
                      print("server line 40")
-              #        seurat.data2 <- reactive({
-              #          print("line 44")
-              #          # uploadsDF is a data.frame where columns= name, size, type and datapath of the uploaded files
-              #          uploadsDF <- input$file2
-              #          # Name of the temporary directory where files are uploaded
-              #          tempdirname <- dirname(uploadsDF$datapath[1])
-              #          print("line 55")
-              #          print(tempdirname)
-              #          print(uploadsDF$datapath[1])
-              #          # default file names are 0.tsv, 1.tsv and 0.mtx
-              #          # Use the names coloumn in uploadsDF to rename the files to genes.tsv, barcodes.tsv and matrix.tsv
-              #          # else, files wont be recognized by read10x function
-              #          for (i in 1:nrow(uploadsDF)) {
-              #            file.rename(uploadsDF$datapath[i],
-              #                        paste0(tempdirname, "/", uploadsDF$name[i]))
-              #          }
-              #
-              #          #files can now be read
-              #          seurat.data2 <- tryCatch({
-              #            seurat.data2 <- Read10X(data.dir = tempdirname)
-              #          },
-              #          error = function(cond) {
-              #            sendSweetAlert(
-              #              session = session,
-              #              title = "Data format error",
-              #              text = "Ensure that 10X Genomics data were appropriately chosen:
-              # accepted files are either .h5 file or matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files ",
-              #              type = "error"
-              #            )
-              #            return()
-              #          })
-              #
-              #        })
-                   }
 
-                   # dataset2 <- input$dataset2
-                   # seurat2 = CreateSeuratObject(
-                   #   counts = seurat.data2(),
-                   #   project = dataset2,
-                   #   min.cells = 3,
-                   #   min.features = 200
-                   # )
+                   }
 
                  }
 
@@ -217,13 +120,7 @@ server <- function(input, output, session) {
                  update_modal_progress(0.03)
 
                  print("line 105")
-                 # #Create first seurat object
-                 # seurat = CreateSeuratObject(
-                 #   counts = seurat.data(),
-                 #   project = dataset,
-                 #   min.cells = 3,
-                 #   min.features = 200
-                 # )
+
 
                  # update progress bar value
 
@@ -274,7 +171,7 @@ server <- function(input, output, session) {
                    # update progress bar value
                    update_modal_progress(0.10)
 
-
+                   #place holder table
                    combinedConsMarkersTable <- 0
                    if (input$conservedMarkersChoice) {
                      # update progress bar value
@@ -335,8 +232,8 @@ server <- function(input, output, session) {
                      computeCost,
                      "costTab",
                      analysis_type,
-                     combinedDEgenesTable,
                      combinedConsMarkersTable,
+                     combinedDEgenesTable,
                      seuratObjectsList,
                      costPerMil,
                      depthPerCell
@@ -422,19 +319,21 @@ server <- function(input, output, session) {
                      )
                    )
 
-
-
+                  print("start of find markers")
+                  print(seuratObjectsList)
                    combinedMarkersTable <-
                      callModule(findMarkerGenes,
                                 "markerGenesTab",
                                 seuratObjectsList,
                                 selectedNumGenes)
-
+                   #place holder table value for conserved marker genes (not actually used by function for single datasets)
+                   combinedConsMarkersTable<-0
                    #call server, pass it the UI,
                    callModule(
                      computeCost,
                      "costTab",
                      analysis_type,
+                     combinedConsMarkersTable,
                      combinedMarkersTable,
                      seuratObjectsList,
                      costPerMil,
@@ -475,11 +374,11 @@ server <- function(input, output, session) {
                                package = "scSubset"),
                    "/"
                  )
-                 dataset_name = "PBMC"
+                 dataset1_name = "PBMC"
                  seurat.data = Read10X(data.dir = sc_example_data)
-                 seurat = CreateSeuratObject(
+                 seurat1 = CreateSeuratObject(
                    counts = seurat.data,
-                   project = dataset_name,
+                   project = dataset1_name,
                    min.cells = 3,
                    min.features = 200
                  )
@@ -557,26 +456,21 @@ server <- function(input, output, session) {
                               "markerGenesTab",
                               seuratObjectsList,
                               selectedNumGenes)
-
+                 #place holder table
+                 combinedConsMarkersTable <- 0
                  #call server, pass it the UI,
                  callModule(
                    computeCost,
                    "costTab",
                    analysis_type,
+                   combinedConsMarkersTable,
                    combinedMarkersTable,
                    seuratObjectsList,
                    costPerMil,
                    depthPerCell
                  )
 
-                 #callModule(exampleDataMarkers, "markerGenesTab")
 
-
-                 #callModule(exampleDataVAR, "varGenesTab", objList)
-
-
-                 # updateTabsetPanel(session, 'mainPage', 'markerGenesTab')
-                 #updateTabsetPanel(session, 'mainPage', 'clusteringTab')
 
 
                  #hide the uploads tab if example data selected

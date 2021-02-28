@@ -54,7 +54,7 @@ findDEgenesUI <- function(id) {
 }
 
 
-findDEgenes <- function(input, output, session, seuratObjectsList, dataset, dataset2, selectedNumGenes) {
+findDEgenes <- function(input, output, session, seuratObjectsList, dataset1_name, dataset2_name, selectedNumGenes) {
   #UPSET PLOT FOR DE GENES
 
   #carrying on from Autoclustering_V2.R script,
@@ -68,7 +68,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
   combinedDE_top = c()
   #this table will hold collective DE genes (of all subsets)
   sumStatDEtable1 = c()
-
+  print(levels(seuratObjectsList[[i]]))
   #for each seurat object, add data cloumns
   for (i in 1:(length(seuratObjectsList))) {
     DefaultAssay(seuratObjectsList[[i]]) <- "RNA"
@@ -89,7 +89,7 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
       Idents(seuratObjectsList[[i]])
     #to know which sample each cluster comes from
     Idents(seuratObjectsList[[i]]) <- "celltype.cond"
-    levels(seuratObjectsList[[i]])
+    print(levels(seuratObjectsList[[i]]))
     print("Line 95, find DE genes")
     #for each cluster in list
     for (j in 1:length(levelsList)) {
@@ -101,8 +101,8 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
         DE.response <-
               FindMarkers(
                 seuratObjectsList[[i]],
-                ident.1 = paste(levelsList[j], "_", dataset, sep = ""),
-                ident.2 = paste(levelsList[j], "_", dataset2, sep = ""),
+                ident.1 = paste(levelsList[j], "_", dataset1_name, sep = ""),
+                ident.2 = paste(levelsList[j], "_", dataset2_name, sep = ""),
                 min.pct = 0.5,
                 logfc.threshold = 0.25,
                 verbose = TRUE
@@ -115,7 +115,6 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
         print("Line 116, find DE genes")
         #get the top 5 most sig genes (or selectedNumGenes)
         DE.response = DE.response %>% top_n(n = -selectedNumGenes, wt = p_val_adj)
-        #bottom_num=DE.response %>% top_n(n = -5, wt = avg_logFC)
         #DE_top holds DE genes per CLUSTER per SUBSET
         #add a coloumn with the identity of the cell
         DE.response$cluster <- levelsList[[j]]
@@ -124,20 +123,27 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
         combinedDE_top = rbind(combinedDE_top, DE.response)
         #end of inner loop
         print("Line 130, find DE genes")
+        print(subsetSize)
+        print(paste0(subsetSize, " cluster ", j))
+        print(levels(seuratObjectsList[[i]]))
 
         },
       error=function(cond) {
-          message(cond)
+        print("enter error line 132")
+        message(cond)
+        print("leaving error line 134")
           # Choose a return value in case of error
           return(NA)
         },
         warning=function(cond) {
+          print("enter warning line 138")
           message(cond)
           # Choose a return value in case of warning
           return(NULL)
         },
         finally={
         #things to execute regardless
+          print("enter finally line 145")
       })
     }
     print("line 134 DEG")
@@ -145,10 +151,6 @@ findDEgenes <- function(input, output, session, seuratObjectsList, dataset, data
     print("Line 135, find DE genes")
     #append tables to list
     DE_Tables_List[[i]] = combinedDE_top
-    #to create variables dynamically and assign them with respective
-    #top 10 table "subset_2000top10
-    # this is just so that the tables dont get overwritten and are saved in env
-    #assign(paste("top_DE_",subsetSize, sep = ""), combinedDE_top)
     print("Line 142, find DE genes")
     #add subsetsize col
     combinedDE_top$subsetSize <- subsetSize
@@ -336,15 +338,3 @@ tableParserDEG <- function(DE_Tables_List, combinedDEgenesTableHeader) {
 
 }
 
-
-
-
-
-
-
-#to know # of cells per condition+cluster
-#table(seuratObjectsList[[i]]@meta.data$celltype.cond)
-#save plot
-#pdf("./Plots/RA_integrated10k_UpsetDE_rep10.pdf", height=4, width=6, paper = "USr")
-#print(upsetPlotDE)
-#dev.off()

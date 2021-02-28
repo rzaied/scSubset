@@ -19,7 +19,7 @@ computeCostUI <- function(id) {
 
 #server function
 computeCost <-
-  function(input, output, session, analysis_type,combinedConsMarkersTable,
+  function(input, output, session, analysis_type, combinedConsMarkersTable,
            combinedMarkersTable, seuratObjectsList, costPerMil, depthPerCell) {
 
     scCostTable=c()

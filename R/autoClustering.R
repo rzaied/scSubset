@@ -202,14 +202,16 @@ scClustering <-
             seurat,
             mito,
             res,
-            dataset) {
+            dataset1_name) {
     seuratObjectsList <- reactiveValues()
 
     print(mito)
     print(res)
 
+    print("autoclust line 211")
+
     #assign dataset name (for "project" in seurat)
-    print(dataset)
+    print(dataset1_name)
     seurat
     dim = 15
     print("line 193, autoclustering")

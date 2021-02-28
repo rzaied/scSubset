@@ -14,7 +14,7 @@ read_h5 <- function(input, output, session, dataset_name, path) {
     tryCatch({
       seurat.data <- Read10X_h5(filePath)
       seurat<- make_seurat_obj(seurat.data, dataset_name)
-      return(seurat)
+
     },
     error = function(cond) {
       print("line 18")
@@ -28,7 +28,10 @@ read_h5 <- function(input, output, session, dataset_name, path) {
       # return()
     })
   # })
-
+    print("seurat obj made")
+    print(dataset_name)
+    print(seurat)
+    return(seurat)
 }
 
 #'  #' Single Cell 10x data reading Tab Server
@@ -70,7 +73,9 @@ read_10x <- function(input, output, session, dataset_name, uploadsDF) {
       )
       # return()
     })
-
+    print("seurat obj made")
+    print(dataset_name)
+    print(seurat)
   return(seurat)
 }
 
