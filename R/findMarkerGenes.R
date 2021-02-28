@@ -1,3 +1,8 @@
+#' Single Cell marker genes Tab UI
+#'
+#' @export
+#' @return None
+#'
 findMarkerGenesUI <- function(id) {
   ns <- NS(id)
 
@@ -44,6 +49,13 @@ findMarkerGenesUI <- function(id) {
 
 }
 
+#' Single Cell marker genes Server
+#'
+#' @param seuratObjectsList Reactive value containing list of downsampled seurat objects
+#' @param selectedNumGenes Reactive value containing user input for number of top genes to test for per cluster per subset
+#' @export
+#' @return Returns a Reactive value containing a table listing marker genes present in each subset
+#'
 
 findMarkerGenes <-
   function(input, output, session, seuratObjectsList, selectedNumGenes) {
@@ -77,13 +89,11 @@ findMarkerGenes <-
       subset_top5$subsetSize <- subsetSize
       #concatenate markers from all subsets together
       sumStatMarkerTable1 = rbind(sumStatMarkerTable1, subset_top5)
-      #save table
-      #write.table(subset_top5,paste("./",dataset,"_",i,"_",subsetSize,"_",res,"_top5.tsv", sep=""), col.names = T,
-      #  row.names = T, quote = F)
+
       combinedMarkersTableHeader = c(combinedMarkersTableHeader, subsetSize)
 
       #update progress bar, following on from 0.5.
-      #update_modal_progress((i + 5) / 12)
+      update_modal_progress((i + 5) / 12)
     }
     sumStatMarkerTable1 = data.frame(sumStatMarkerTable1)
     sumStatMarkerTable1 <-
@@ -188,6 +198,13 @@ findMarkerGenes <-
 
   }
 
+#' Function that iterates through cell markers and record their presence/absence per subset.
+#'
+#' @param TablesList Reactive value containing a list of tables that list the marker genes present prer cluster per
+#'   subset
+#' @export
+#' @return Returns a Reactive value listing marker genes resolved per cluster per subset
+
 
 tableParserMG <- function(TablesList) {
   #table will be used to plot upsetplot
@@ -209,7 +226,7 @@ tableParserMG <- function(TablesList) {
   #for each table, starting at smallest subset
   for (i in 1:length(TablesList)) {
     #update progress bar, following on from 0.8.
-  #  update_modal_progress((i + 8) / 13.5)
+    update_modal_progress((i + 8) / 13.5)
 
     #to know progress
     print(paste("parsing table:", i, "of 5"))

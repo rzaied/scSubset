@@ -61,6 +61,7 @@ read_10x <- function(input, output, session, dataset_name, uploadsDF) {
     #files can now be read
     seurat.data <- tryCatch({
       seurat.data <- Read10X(data.dir = tempdirname)
+      print("load data 64")
       seurat<- make_seurat_obj(seurat.data, dataset_name)
     },
     error = function(cond) {
@@ -81,11 +82,12 @@ read_10x <- function(input, output, session, dataset_name, uploadsDF) {
 
 #' Function to create seaurat object
 #'
-#' @param seurat.data Reactive value containing
+#' @param seurat.data Reactive value containing data from single cell dataset
+#' @param dataset_name Reactive value containing name of project for seurat
 #'
 #' @export
 #' @return Returns a Reactive value containing list of downsampled seurat objects
-#'  with reassigned cluster labels that correspoond across downsampled subsets
+#'  with reassigned cluster labels that correspond across downsampled subsets
 
 make_seurat_obj <- function(seurat.data, dataset_name) {
 

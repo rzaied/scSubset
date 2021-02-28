@@ -1,3 +1,8 @@
+#' Single Cell conserved markers Tab UI
+#'
+#' @export
+#' @return None
+
 conservedMarkersUI <- function(id) {
   ns <- NS(id)
 
@@ -43,7 +48,13 @@ conservedMarkersUI <- function(id) {
 }
 
 
-
+#' Single Cell conserved markers Server
+#'
+#' @param seuratObjectsList Reactive value containing list of downsampled seurat objects
+#' @param selectedNumGenes Reactive value containing user input for number of top genes to test for per cluster per subset
+#' @export
+#' @return Returns a reactive value containing a table that lists conserved markers per cluster per subset
+#'
 
 findConservedMarkers <-
   function (input, output, session, seuratObjectsList, selectedNumGenes) {
@@ -62,7 +73,7 @@ findConservedMarkers <-
                            "")
       print(subsetSize)
       #update progress bar, following on from 0.5
-     # update_modal_progress((i + 5) / 10.5)
+      update_modal_progress((i + 5) / 10.5)
       #list to easily acess the clusters in each subset
       levelsList = levels(seuratObjectsList[[i]])
       #for each cluster in list
@@ -71,7 +82,7 @@ findConservedMarkers <-
 
         #logfc.threshold is by default 0.25, increasing to 0.4 speeds up the function but could miss weaker signals
         #Find conserved marker genes (marker genes shared b/w both conditions)
-        try(conserved.markers <-
+        tryCatch({ conserved.markers <-
               FindConservedMarkers(
                 seuratObjectsList[[i]],
                 ident.1 = levelsList[[j]],
@@ -79,7 +90,7 @@ findConservedMarkers <-
                 verbose = TRUE,
                 min.pct = 0.7,
                 logfc.threshold = 0.3
-              ))
+              )
         print("line 81")
 
         #in case a cluster doesn't exist in a condition, only one condition will be used (i.e. only 5 cols)
@@ -99,16 +110,28 @@ findConservedMarkers <-
           #select top5 (using many genes significantly increases computation time)
           top_conservedMarkers = top_conservedMarkers %>% top_n(n = -selectedNumGenes, wt = minimump_p_val)
           #add a coloumn with the identity of the cluster (in try block incase no top consv markers )
-          try(top_conservedMarkers$cluster <-
-                levelsList[[j]],
-              silent = T)
+          top_conservedMarkers$cluster <-
+                levelsList[[j]]
           print("line 96")
           #append those to a combined_top table
           combinedMarkers_top = rbind(combinedMarkers_top, top_conservedMarkers)
           print("line 99")
         }
 
-
+        },
+        error = function(cond) {
+          # message(cond)
+          # Choose a return value in case of error
+          return(NA)
+        },
+        warning = function(cond) {
+          #message(cond)
+          # Choose a return value in case of warning
+          return(NULL)
+        },
+        finally = {
+          #things to execute regardless
+        })
       }
       combinedMarkers_top = data.frame(combinedMarkers_top)
 
@@ -136,7 +159,9 @@ findConservedMarkers <-
 
     #Round Pval
 
-    combinedMarkersTable <- tableParserCMG(conservedMarkers_Tables_List, combinedMarkerGenesTableHeader)
+    combinedMarkersTable <- tableParserCMG(conservedMarkers_Tables_List)
+    #finally, rename the coloumns in combinedMarkersTable
+    names(combinedMarkersTable) = combinedMarkerGenesTableHeader
     print("line 135 findCMG")
     #plot upsetPlot via combined table
     upsetPlotMG = upset(
@@ -217,13 +242,17 @@ findConservedMarkers <-
   }
 
 #PARSING TABLE FOR USE IN UPSETR**************************************
-#this code iterates through each cell marker and record its precesnce/absence in each of
-#the other subsets.
-#for each table, add the 8th coloumn (STARTING FROM smallest TABLE)
+
+#' Function that iterates through cell markers and record their presence/absence per subset.
+#'
+#' @param conservedMarkers_Tables_List Reactive value containing a list of tables that lists the conserved markers present in each subset
+#'
+#' @export
+#' @return Returns a Reactive value listing conserved marker genes resolved per subset
 
 
-tableParserCMG <- function(conservedMarkers_Tables_List, combinedMarkerGenesTableHeader) {
-  #tables will be used to plot upsetplot
+tableParserCMG <- function(conservedMarkers_Tables_List) {
+  #table will be used to plot upsetplot
   combinedMarkersTable = c()
 
   #row that temporarily stores info about each marker gene from each subset
@@ -244,46 +273,42 @@ tableParserCMG <- function(conservedMarkers_Tables_List, combinedMarkerGenesTabl
   for (i in 1:length(conservedMarkers_Tables_List)) {
     #2) iterate through each row in that table
     for (row in 1:nrow(conservedMarkers_Tables_List[[i]])) {
-      #check if marker is already present in the combined table
-      #col 15 holds cluster_marker info
+      #check if marker is already present in the combined table (col 15 holds cluster_marker info)
       clusterMarker = paste(conservedMarkers_Tables_List[[i]][row, 15])
       coloumnWithPattern = which(grepl(clusterMarker, combinedMarkersTable))
       print("line 245 cmg")
       #if marker isn't present in combinedMarkersTable
       if (length(coloumnWithPattern) == 0) {
-        #1)add it to tmpMarkerRow table
+        #1)add it to tmpMarkerRow
         tmpMarkerRow = rbind(tmpMarkerRow, clusterMarker)
         print("line 250 cmg")
         for (j in 1:length(conservedMarkers_Tables_List)) {
-          #search if that marker exist in myTables
+          #search if that marker exist in conservedMarkers_Tables_List
           x = which(grepl(clusterMarker, conservedMarkers_Tables_List[[j]]))
           print("line 254 cmg")
-          #if it isn't present,
+          #if it isn't present, add 0 to tmpMarkerRow
           if (length(x) == 0) {
-            #add 0 to tmpMarkerRow
             tmpMarkerRow = cbind(tmpMarkerRow, 0)
           }
           else
             #add1 to tmp row
             tmpMarkerRow = cbind(tmpMarkerRow, 1)
           print("line 263 cmg")
-        } #then search marker in next table
-        #once done crosscomparing for selected marker,
-        #add tmpMarkerRow to the combinedMarkersTable
+        }
+        #then search marker in next table, once done cross comparing for selected marker,
+        #append tmpMarkerRow to the combinedMarkersTable
         combinedMarkersTable = rbind(combinedMarkersTable, tmpMarkerRow)
         #reinitiate tmpMarkerRow to 0
         tmpMarkerRow = c()
         print("line 270 cmg")
-      } #if it is present already it means you've already cross-compared it
-      #so move on to next marker
+      } #if it is present already it means it has already been cross compared, thus,
+            #move on to next marker
     }
-    #once done will ll rows of a table, move on to next table
+    #once done with rows of a table, move on to next table in next subset
 
   }
   print("line 277 cmg")
   combinedMarkersTable = data.frame(combinedMarkersTable)
-  #finally, rename the coloumns in combinedMarkersTable
-  names(combinedMarkersTable) = combinedMarkerGenesTableHeader
 
   #change all subsets from factor to numeric
   combinedMarkersTable[, 2:(length(conservedMarkers_Tables_List) + 1)] <-

@@ -1,3 +1,7 @@
+#' Single Cell compute cost Tab UI
+#'
+#' @export
+#' @return None
 computeCostUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -16,6 +20,19 @@ computeCostUI <- function(id) {
   )))
 
 }
+
+
+#' Single Cell compute cost Tab Server
+#' @param analysis_type Reactive value containing type of analysis (integrated vs single analysis)
+#' @param combinedConsMarkersTable Reactive value containing a table that lists conserved markers per cluster per
+#'  subset if the "find conserved markers" option was selected
+#' @param seuratObjectsList Reactive value containing list of downsampled seurat objects
+#'  with reduced dimensions (PCA data), scaled counts, and cluster labels that corresponds across subsets
+#' @param costPerMil Reactive value containing cost of sequencing one million reads
+#' @param depthPerCell Reactive value containing the depth of sequencing per cell selected by the user
+#'
+#' @export
+#'
 
 #server function
 computeCost <-

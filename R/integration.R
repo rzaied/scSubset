@@ -72,7 +72,7 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
   for (i in seq(from = minSubset, to = numCells, by = incrementation)) {
     x = x + 1
     #update progress bar
-    #update_modal_progress(x / 25)
+    update_modal_progress(x / 25)
     print(i)
 
     #subsetting

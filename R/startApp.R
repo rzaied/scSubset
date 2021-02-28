@@ -1,3 +1,7 @@
+#' Function to load required dependanies and start Shiny session
+#'
+#' @export
+
 scSubsetGo <- function() {
 
   if (interactive()){

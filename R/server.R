@@ -216,7 +216,8 @@ server <- function(input, output, session) {
                      )
                    )
 
-
+                   dataset1_name<-"dataset1"
+                   dataset2_name<-"dataset2"
                    print("line 162")
                    combinedDEgenesTable <- callModule(
                      findDEgenes,
