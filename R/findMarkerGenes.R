@@ -76,7 +76,8 @@ findMarkerGenes <-
         logfc.threshold = 0.3
       )
       #change avg_logFC to avg_log2FC
-      subset_top5 = subset.markers %>% group_by(cluster) %>% top_n(n = selectedNumGenes, wt = avg_log2FC)
+      markers_col_names<- names(subset.markers)
+      subset_top5 = subset.markers %>% group_by(cluster) %>% top_n(n = selectedNumGenes, wt = markers_col_names[2])
 
       #to create variables dynamically and assign them with respective
       #top 10 table "subset_2000top10
