@@ -237,7 +237,7 @@ scClustering <-
       print(i)
       x = x + 1
       #update progress bar
-      update_modal_progress(x / 10)
+     # update_modal_progress(x / 10)
       print(x)
       #subsetting
       subset = subset(seurat, cells = sample(Cells(seurat), i))
