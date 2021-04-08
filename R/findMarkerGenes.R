@@ -60,7 +60,7 @@ findMarkerGenesUI <- function(id) {
 findMarkerGenes <-
   function(input, output, session, seuratObjectsList, selectedNumGenes) {
     #carrying on from Autoclustering_V2.R script,
-    combinedMarkersTableHeader = c("Cluster_Marker")
+  #  combinedMarkersTableHeader = c("Cluster_Marker")
     TablesList = list()
     sumStatMarkerTable1 = c()
     #for each seurat object, find marker genes
@@ -75,24 +75,24 @@ findMarkerGenes <-
         min.pct = 0.3,
         logfc.threshold = 0.3
       )
-      #change avg_logFC to avg_log2FC
+     # change avg_logFC to avg_log2FC
       markers_col_names<- names(subset.markers)
-      subset_top5 = subset.markers %>% group_by(cluster) %>% top_n(n = selectedNumGenes, wt = markers_col_names[2])
-
+      subset_top5 = subset.markers %>% group_by(cluster) %>% top_n(n = selectedNumGenes, wt = avg_log2FC)
+  #  x<-  subset.markers %>% group_by(cluster) %>% slice_max(n = 5, order_by = avg_logFC)
       #to create variables dynamically and assign them with respective
       #top 10 table "subset_2000top10
 
-      #this is just so that the tables dont get overwritten and are saved in env
+      #this is just so that th e tables dont get overwritten and are saved in env
       assign(paste("subset_", subsetSize, "_top5", sep = ""), subset_top5)
 
       #append to list
-      TablesList[[i]] = subset_top5
+     # TablesList[[i]] = subset_top5
       #add subsetsize coloumn to table
       subset_top5$subsetSize <- subsetSize
       #concatenate markers from all subsets together
       sumStatMarkerTable1 = rbind(sumStatMarkerTable1, subset_top5)
 
-      combinedMarkersTableHeader = c(combinedMarkersTableHeader, subsetSize)
+   #  combinedMarkersTableHeader = c(combinedMarkersTableHeader, subsetSize)
 
       #update progress bar, following on from 0.5.
       update_modal_progress((i + 5) / 12)
@@ -104,22 +104,22 @@ findMarkerGenes <-
 
 
     #parse table for use in upsetplot
-    combinedMarkersTable <- tableParserMG(TablesList)
+    combinedMarkersTable <- tableParserMG(sumStatMarkerTable1)
 
-    combinedMarkersTable = data.frame(combinedMarkersTable)
+
     #finally, rename the coloumns in combinedMarkersTable
-    names(combinedMarkersTable) = combinedMarkersTableHeader
+  #  names(combinedMarkersTable) = combinedMarkersTableHeader
     print("line 100 findMG")
     #change factor to numeric
-    combinedMarkersTable[, 2:(length(TablesList) + 1)] <-
-      sapply(combinedMarkersTable[, 2:(length(TablesList) + 1)], as.character)
-    combinedMarkersTable[, 2:(length(TablesList) + 1)] <-
-      sapply(combinedMarkersTable[, 2:(length(TablesList) + 1)], as.numeric)
+    # combinedMarkersTable[, 2:(length(TablesList) + 1)] <-
+    #   sapply(combinedMarkersTable[, 2:(length(TablesList) + 1)], as.character)
+    # combinedMarkersTable[, 2:(length(TablesList) + 1)] <-
+    #   sapply(combinedMarkersTable[, 2:(length(TablesList) + 1)], as.numeric)
     print("line 106 findMG")
     #plot upsetPlot via combined table
     upsetPlotMG = upset(
       combinedMarkersTable,
-      sets = combinedMarkersTableHeader[6:2],
+      sets = names(combinedMarkersTable[6:2]),
       nsets = 5,
       number.angles = 30,
       point.size = 2.5,
@@ -200,86 +200,25 @@ findMarkerGenes <-
 
   }
 
-#' Function that iterates through cell markers and record their presence/absence per subset.
+#' Function that record the presence/absence of markers per subset.
 #'
-#' @param TablesList Reactive value containing a list of tables that list the marker genes present prer cluster per
-#'   subset
+#' @param sumStatMarkerTable1 Reactive value containing table that lists the marker genes present in each subset
 #' @export
 #' @return Returns a Reactive value listing marker genes resolved per cluster per subset
 
-
-tableParserMG <- function(TablesList) {
-  #table will be used to plot upsetplot
-  combinedMarkersTable = c()
-  #row that temporarily stores info about each marker gene from each subset
-  #if a marker is present, the subset will have a score of 1. else, it will score a 0
-  tmpRow = c()
+tableParserMG <- function(sumStatMarkerTable1) {
   #PARSING TABLE FOR USE IN UPSETR**************************************
-  #this code iterates through each cell marker and record its precesnce/absence in each of
-  #the other subsets.
+  #this code record its precesnce/absence of each marker in each of the other subsets
+    combinedMarkersTable <- sumStatMarkerTable1
 
-  #for each table, add the 8th coloumn (STARTING FROM smallest subset TABLE)
-  for (i in 1:length(TablesList)) {
-    #1) make a cluster_marker column in each table
-    TablesList[[i]]$Cluster_Marker = paste(TablesList[[i]]$cluster,
-                                           TablesList[[i]]$gene)
-  }
+    combinedMarkersTable$Cluster_Marker = paste(combinedMarkersTable$cluster,
+                                                combinedMarkersTable$gene)
 
-  #for each table, starting at smallest subset
-  for (i in 1:length(TablesList)) {
-    #update progress bar, following on from 0.8.
-    update_modal_progress((i + 8) / 13.5)
+  combinedMarkersTable <- combinedMarkersTable %>% ungroup() %>%
+    select(Cluster_Marker, subsetSize) %>% mutate(presence=1) %>%
+    pivot_wider(names_from=subsetSize , values_from=presence) %>%
+    replace(is.na(.), 0) %>% as.data.frame()
 
-    #to know progress
-    print(paste("parsing table:", i, "of 5"))
-
-    #2) iterate through each row in that table
-    for (row in 1:nrow(TablesList[[i]])) {
-      #check if marker is already present in the combined table
-      #col 8 holds the cluster and marker name
-      clusterMarker = paste(TablesList[[i]][row, 8])
-      coloumnWithPattern = which(grepl(clusterMarker, combinedMarkersTable))
-
-      #to know progress thus far
-      print(paste("row #", row, " of ", nrow(TablesList[[i]]), sep = ""))
-
-      #if marker isn't present in combinedMarkersTable
-      if (length(coloumnWithPattern) == 0) {
-        #1)add it to tmpROW table
-        #clusterMarker=paste(MyList[[i]][row,8])
-        tmpRow = rbind(tmpRow, clusterMarker)
-        print("line 227 findMG")
-        for (j in 1:length(TablesList)) {
-          #search if that marker exist in myTables
-          x = which(grepl(clusterMarker, TablesList[[j]]))
-          print("line 231, findMG ", i)
-          #if it isn't present,
-          if (length(x) == 0) {
-            #add 0 to tmpRow
-            tmpRow = cbind(tmpRow, 0)
-            print("line 236 findMG")
-          }
-          else
-            #add1 to tmp row
-            tmpRow = cbind(tmpRow, 1)
-          print("line 241 findMG")
-
-        } #then search marker in next table
-        #once done crosscomparing for selected marker,
-        #add tmpRow to the combinedMarkersTable
-        combinedMarkersTable = rbind(combinedMarkersTable, tmpRow)
-        print("line 247 findMG")
-        #reinitiate tmpRow to 0
-        tmpRow = c()
-      } #if it is present already it means you've already cross-compared it
-      #so move on to next marker
-    }
-    #once done will ll rows of a table, move on to next table
-
-  }
   print("line 256 findMG")
   return(combinedMarkersTable)
-
-
 }
-
