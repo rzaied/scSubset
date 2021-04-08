@@ -74,7 +74,7 @@ findConservedMarkers <-
                            "")
       print(subsetSize)
       #update progress bar, following on from 0.5
-      update_modal_progress((i + 5) / 10.5)
+      #update_modal_progress((i + 5) / 10.5)
       #list to easily acess the clusters in each subset
       levelsList = levels(seuratObjectsList[[i]])
       #for each cluster in list
@@ -228,7 +228,7 @@ findConservedMarkers <-
       }
     )
     # update progress bar value
-    update_modal_progress(1)
+   # update_modal_progress(1)
     return(combinedMarkersTable)
   }
 
@@ -271,12 +271,12 @@ tableParserCMG <- function(sumStatMarkerTable1) {
 sort_by_minimump_p_val <-
   function(selectedNumGenes, conserved.markers) {
     conserved.markers <-
-      markers_table %>% #seperate coefficient and exponent to sort
+      conserved.markers %>% #seperate coefficient and exponent to sort
       mutate("coefficient" = as.numeric(as.character(
-        str_extract(markers_table$minimump_p_val, regex("([^e]+)"))
+        str_extract(conserved.markers$minimump_p_val, regex("([^e]+)"))
       ))) %>%
       mutate("exponent" = as.numeric(as.character(
-        str_extract(markers_table$minimump_p_val, regex("[^e]*$"))
+        str_extract(conserved.markers$minimump_p_val, regex("[^e]*$"))
       ))) %>%
       arrange(exponent, coefficient) %>% select(-exponent,-coefficient) %>%
       slice_head(n = selectedNumGenes) #select top 5 rows (most statistically significant)
