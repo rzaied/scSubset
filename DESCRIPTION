@@ -23,11 +23,11 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 biocViews: 
-Imports: shiny (>= 1.5.0), shinythemes (>= 1.2.0), Seurat (>= 4.0.0), DT (>= 0.17), 
-    shinycssloaders (>= 1.0.0), shinydashboard (>= 0.7.1), shinyjs (>= 2.0.0), shinybusy (>= 0.2.2),
+Imports: shiny , shinythemes , Seurat (>= 4.0.0), DT (>= 0.17), 
+    shinycssloaders , shinydashboard , shinyjs , shinybusy,
     aricode (>= 1.0.0), ggplot2 (>= 3.3.2), reshape2 (>= 1.4.4), UpSetR (>= 1.4.0), hdf5r (>= 1.3.3),
-    tidyverse (>= 1.3.0), metap (>= 1.4), shinyWidgets (>= 0.5.7), cowplot (>= 1.1.0), patchwork (>= 1.1.0), 
-    shinyalert (>= 2.0.0), multtest (>= 2.46.0), stringr (>= 1.4.0)
+    tidyverse (>= 1.3.0), metap (>= 1.4), shinyWidgets , cowplot (>= 1.1.0), patchwork (>= 1.1.0), 
+    shinyalert , multtest (>= 2.46.0), stringr (>= 1.4.0)
 RoxygenNote: 7.1.1
 Collate:
     'startApp.R'
