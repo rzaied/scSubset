@@ -1,6 +1,6 @@
 Package: scSubset
 Type: Package
-Title: R package for visualizing the effect of cell count in a scRNA-seq 
+Title: Visualize the effect of cell count in a scRNA-seq 
     analysis pipeline
 Version: 0.1.0
 Author@R: c(person(given = "Roan",
