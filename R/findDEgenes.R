@@ -78,10 +78,10 @@ findDEgenes <-
     #UPSET PLOT FOR DE GENES
     print("DE 59")
     #carrying on from Autoclustering_V2.R script,
-    combinedDEgenesTableHeader = c("DE_gene")
+  #  combinedDEgenesTableHeader = c("DE_gene")
 
     #list to store DE genes from each cell type
-    DE_Tables_List = list()
+  #  DE_Tables_List = list()
     #names of clusters before reassigning which condition they belong to for findCMG
     #origlevelsList = list()
     #combinedtop DE genes table. this table will hold all DE genes per subset
@@ -130,22 +130,21 @@ findDEgenes <-
 
           print("Line 112, find DE genes")
           #find the top 5 positive DE genes
-          #or use all those that have pvalue 0.01, table with 0 if none.
-          DE.response = DE.response[DE.response$p_val_adj <= 0.01, ]
+          #or use all those that have pvalue 0.01, table with 0 if none
+          #get the top 5 most sig genes (or -selectedNumGenes) via pvalue so lowest pvalues
+          DE.response = DE.response[DE.response$p_val_adj <= 0.01, ] %>%  #add a coloumn with the identity of the cell
+            mutate(cluster=  levelsList[[j]])
+
+          combinedDE_top=sort_by_p_val_adj(selectedNumGenes, DE.response)
+
+
           print("Line 116, find DE genes")
-          #get the top 5 most sig genes (or selectedNumGenes)
-          DE.response = DE.response %>% top_n(n = -selectedNumGenes, wt = p_val_adj)
+
           #DE_top holds DE genes per CLUSTER per SUBSET
-          #add a coloumn with the identity of the cell
-          DE.response$cluster <- levelsList[[j]]
-          print("Line 127, find DE genes")
           #append those to a combinedDE_top table
           combinedDE_top = rbind(combinedDE_top, DE.response)
           #end of inner loop
           print("Line 130, find DE genes")
-          print(subsetSize)
-          print(paste0(subsetSize, " cluster ", j))
-          print(levels(seuratObjectsList[[i]]))
 
         },
         error = function(cond) {
@@ -166,7 +165,7 @@ findDEgenes <-
       combinedDE_top = data.frame(combinedDE_top)
       print("Line 135, find DE genes")
       #append tables to list
-      DE_Tables_List[[i]] = combinedDE_top
+  #    DE_Tables_List[[i]] = combinedDE_top
       print("Line 142, find DE genes")
       #add subsetsize col
       combinedDE_top$subsetSize <- subsetSize
@@ -175,10 +174,11 @@ findDEgenes <-
       sumStatDEtable1 = rbind(sumStatDEtable1, combinedDE_top)
       #once we compiled the top DE genes from each cluster of a subset, move on to next subset
       combinedDE_top = c()
-      combinedDEgenesTableHeader = c(combinedDEgenesTableHeader, subsetSize)
+   #   combinedDEgenesTableHeader = c(combinedDEgenesTableHeader, subsetSize)
       print("Line 152, find DE genes")
     }
     print("Line 153, find DE genes")
+    #add row names to table
     rownames(sumStatDEtable1) <- c(1:nrow(sumStatDEtable1))
     sumStatDEtable1 = data.frame(sumStatDEtable1)
     #make gene names first coloumn
@@ -186,7 +186,7 @@ findDEgenes <-
     print("Line 159, find DE genes")
 
 
-    combinedDEgenesTable <- tableParserDEG(DE_Tables_List)
+    combinedDEgenesTable <- tableParserDEG(sumStatDEtable1)
     #finally, rename the coloumns in combinedDEgenesTable
     names(combinedDEgenesTable) = combinedDEgenesTableHeader
 
@@ -272,93 +272,50 @@ findDEgenes <-
   }
 
 
+
 #' Function that iterates through differentially expressed genes and records their presence/absence per cluster per subset.
 #'
-#' @param DE_Tables_List Reactive value containing a list of tables that list the deferentially expressed genes
-#'  present per cluster per subset
+#' @param sumStatDEtable1 Reactive value containing table that lists the differentially expressed genes present in each subset
 #' @export
 #' @return Returns a Reactive value listing conserved marker genes resolved per cluster per subset
 
-
-tableParserDEG <- function(DE_Tables_List) {
-  #table will be used to plot upsetplot
-  combinedDEgenesTable = c()
-  #row that temporarily stores info about each marker gene from each subset
-  #if a marker is present, the subset will have a score of 1. else, it will score a 0
-
-  tmpDErow = c()
-  #put tables in a list to iterate through them
-
-
+tableParserDEG <- function(sumStatDEtable1) {
   #PARSING TABLE FOR USE IN UPSETR**************************************
-  #this code iterates through each cell marker and record its precesnce/absence in each of
-  #the other subsets.
-  #for each table, add the 8th coloumn (STARTING FROM smallest TABLE)
+  #this code record its precesnce/absence of each marker in each of the other subsets
+  combinedDEgenesTable <- sumStatDEtable1
 
-  #******************DE GENES***************************************************************
-  for (i in 1:length(DE_Tables_List)) {
-    #1) make a gene name column in each table
-    DE_Tables_List[[i]]$gene = rownames(DE_Tables_List[[i]])
-    #make a cluster_marker column in each table
-    DE_Tables_List[[i]]$Cluster_DEgene = paste(DE_Tables_List[[i]]$cluster,
-                                               DE_Tables_List[[i]]$gene)
-    #note that these changes are only visible from within the list
-    print("Line 269, find DE genes")
-  }
+  combinedDEgenesTable$Cluster_Marker = paste(combinedDEgenesTable$cluster,
+                                              combinedDEgenesTable$gene)
 
-  #for each table, starting at smallest
-  for (i in 1:length(DE_Tables_List)) {
-    #2) iterate through each row in that table
-    for (row in 1:nrow(DE_Tables_List[[i]])) {
-      #check if marker is already present in the combined table
-      #col 8 has the cluster_gene name info
-      print("Line 278, find DE genes")
-      clusterMarker = paste(DE_Tables_List[[i]][row, 8])
-      coloumnWithPattern = which(grepl(clusterMarker, combinedDEgenesTable))
+  combinedDEgenesTable <- combinedDEgenesTable %>% ungroup() %>%
+    select(Cluster_Marker, subsetSize) %>% mutate(presence=1) %>%
+    pivot_wider(names_from=subsetSize , values_from=presence) %>%
+    replace(is.na(.), 0) %>% as.data.frame()
 
-      #if marker isn't present in combinedDEgenesTable
-      if (length(coloumnWithPattern) == 0) {
-        #1)add it to tmpDErow table
-        tmpDErow = rbind(tmpDErow, clusterMarker)
-        print("Line 287, find DE genes")
-        for (j in 1:length(DE_Tables_List)) {
-          #search if that marker exists in topDE table of each subset
-          x = which(grepl(clusterMarker, DE_Tables_List[[j]]))
-          print("Line 290, find DE genes")
-          #if it isn't present,
-          if (length(x) == 0) {
-            #add 0 to tmpDErow
-            tmpDErow = cbind(tmpDErow, 0)
-          }
-          else
-            #add1 to tmp row
-            tmpDErow = cbind(tmpDErow, 1)
+  print("line 256 findMG")
 
-        } #then search marker in next table
-        #once done crosscomparing for selected marker,
-        #add tmpDErow to the combinedDEgenesTable
-        combinedDEgenesTable = rbind(combinedDEgenesTable, tmpDErow)
-        #reinitiate tmpDErow to 0
-        tmpDErow = c()
-      } #if it is present already it means you've already cross-compared it
-      #so move on to next marker
-    }
-    #once done will ll rows of a table, move on to next table
-
-  }
-
-  print("Line 313, find DE genes")
-  combinedDEgenesTable = data.frame(combinedDEgenesTable)
-  #finally, rename the coloumns in combinedDEgenesTable
-  #names(combinedDEgenesTable) = combinedDEgenesTableHeader
-  print("Line 317, find DE genes")
-  #change all subsets from factor to numeric
-  combinedDEgenesTable[, 2:(length(DE_Tables_List) + 1)] <-
-    sapply(combinedDEgenesTable[, 2:(length(DE_Tables_List) + 1)], as.character)
-  combinedDEgenesTable[, 2:(length(DE_Tables_List) + 1)] <-
-    sapply(combinedDEgenesTable[, 2:(length(DE_Tables_List) + 1)], as.numeric)
-
-  print("Line 324, find DE genes")
   return(combinedDEgenesTable)
+}
+
+
+#' Function that sorts and select top n genes
+#'
+#' @param DE.response Reactive value containing deferentially expressed genes of a cluster in a given subset
+#' @param selectedNumGenes Reactive value containing number of Deferentially expressed genes to be tested for
+#' as chosen by the user
+#' @export
+#' @return Returns a Reactive value of the top deferentially expressed genes after sorting
+
+
+sort_by_p_val_adj<-function(selectedNumGenes, DE.response) {
+
+  DE.response<- DE.response %>% #seperate coefficient and exponent to sort
+    mutate("coefficient"=as.numeric(as.character(str_extract(DE.response$p_val_adj, regex("([^e]+)"))))) %>%
+    mutate("exponent"=as.numeric(as.character(str_extract(DE.response$p_val_adj, regex("[^e]*$"))))) %>%
+    arrange(exponent, coefficient) %>% select(-exponent, -coefficient) %>%
+    slice_head(n= selectedNumGenes) #select top 5 rows (most statistically significant)
+
+
+  return(DE.response)
 
 }
