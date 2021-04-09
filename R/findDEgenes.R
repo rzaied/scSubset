@@ -132,17 +132,23 @@ findDEgenes <-
           #find the top 5 positive DE genes
           #or use all those that have pvalue 0.01, table with 0 if none
           #get the top 5 most sig genes (or -selectedNumGenes) via pvalue so lowest pvalues
-          DE.response = DE.response[DE.response$p_val_adj <= 0.01, ] %>%  #add a coloumn with the identity of the cell
-            mutate(cluster=  levelsList[[j]])
 
-          combinedDE_top=sort_by_p_val_adj(selectedNumGenes, DE.response)
+          DE.response<- DE.response %>%
+            mutate("cluster"=  levelsList[[j]]) %>%
+            mutate("gene"= rownames(DE.response))
+
+          DE.response = DE.response[DE.response$p_val_adj <= 0.01, ] #add a coloumn with the identity of the cell
+
+          DE.response_top<- DE.response %>%  top_n(n = selectedNumGenes, wt = abs(avg_log2FC))
+
+         # DE.response_top=sort_by_p_val_adj(selectedNumGenes, DE.response)
 
 
           print("Line 116, find DE genes")
 
           #DE_top holds DE genes per CLUSTER per SUBSET
           #append those to a combinedDE_top table
-          combinedDE_top = rbind(combinedDE_top, DE.response)
+          combinedDE_top = rbind(combinedDE_top, DE.response_top)
           #end of inner loop
           print("Line 130, find DE genes")
 
@@ -163,14 +169,14 @@ findDEgenes <-
       }
       print("line 134 DEG")
       combinedDE_top = data.frame(combinedDE_top)
+      assign(paste("top_DE_", subsetSize, sep = ""),
+             combinedDE_top)
       print("Line 135, find DE genes")
       #append tables to list
   #    DE_Tables_List[[i]] = combinedDE_top
       print("Line 142, find DE genes")
       #add subsetsize col
       combinedDE_top$subsetSize <- subsetSize
-      #add gene name as seperate coloumn
-      combinedDE_top$gene = rownames(combinedDE_top)
       sumStatDEtable1 = rbind(sumStatDEtable1, combinedDE_top)
       #once we compiled the top DE genes from each cluster of a subset, move on to next subset
       combinedDE_top = c()
@@ -182,20 +188,20 @@ findDEgenes <-
     rownames(sumStatDEtable1) <- c(1:nrow(sumStatDEtable1))
     sumStatDEtable1 = data.frame(sumStatDEtable1)
     #make gene names first coloumn
-    sumStatDEtable1 <- sumStatDEtable1[, c(7, 1, 2, 3, 4, 5, 6, 8)]
+    sumStatDEtable1 <-sumStatDEtable1 %>%
+      relocate(gene, .before= p_val)
+#    sumStatDEtable1[, c(7, 1, 2, 3, 4, 5, 6, 8)]
     print("Line 159, find DE genes")
 
 
     combinedDEgenesTable <- tableParserDEG(sumStatDEtable1)
-    #finally, rename the coloumns in combinedDEgenesTable
-    names(combinedDEgenesTable) = combinedDEgenesTableHeader
 
     print("LINE 165 findDEG")
     #plot upsetPlot via combined table
     upsetPlotDE = upset(
       combinedDEgenesTable,
-      sets = names(combinedDEgenesTable)[6:2],
-      nsets = 5,
+      sets = names(combinedDEgenesTable)[ncol(combinedDEgenesTable):2],
+      nsets = ncol(combinedDEgenesTable)-1,
       number.angles = 20,
       point.size = 2.5,
       line.size = 1,
@@ -307,15 +313,15 @@ tableParserDEG <- function(sumStatDEtable1) {
 #' @return Returns a Reactive value of the top deferentially expressed genes after sorting
 
 
-sort_by_p_val_adj<-function(selectedNumGenes, DE.response) {
-
-  DE.response<- DE.response %>% #seperate coefficient and exponent to sort
-    mutate("coefficient"=as.numeric(as.character(str_extract(DE.response$p_val_adj, regex("([^e]+)"))))) %>%
-    mutate("exponent"=as.numeric(as.character(str_extract(DE.response$p_val_adj, regex("[^e]*$"))))) %>%
-    arrange(exponent, coefficient) %>% select(-exponent, -coefficient) %>%
-    slice_head(n= selectedNumGenes) #select top 5 rows (most statistically significant)
-
-
-  return(DE.response)
-
-}
+# sort_by_p_val_adj<-function(selectedNumGenes, DE.response) {
+#
+#   DE.response<- DE.response %>% #seperate coefficient and exponent to sort
+#     mutate("coefficient"=as.numeric(as.character(str_extract(DE.response$p_val_adj, regex("([^e]+)"))))) %>%
+#     mutate("exponent"=as.numeric(as.character(str_extract(DE.response$p_val_adj, regex("[^e]*$"))))) %>%
+#     arrange(exponent, coefficient) %>% select(-exponent, -coefficient) %>%
+#     slice_head(n= selectedNumGenes) #select top 5 rows (most statistically significant)
+#
+#
+#   return(DE.response)
+#
+# }

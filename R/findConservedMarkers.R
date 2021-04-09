@@ -74,7 +74,7 @@ findConservedMarkers <-
                            "")
       print(subsetSize)
       #update progress bar, following on from 0.5
-      #update_modal_progress((i + 5) / 10.5)
+      update_modal_progress((i + 5) / 10.5)
       #list to easily acess the clusters in each subset
       levelsList = levels(seuratObjectsList[[i]])
       #for each cluster in list
@@ -98,12 +98,17 @@ findConservedMarkers <-
           #if tested cluster is present in both conditions (i.e. there are 12 cols) carry on, otherwise skip that cluster
           if (ncol(conserved.markers) == 12)  {
             #only keep markers that are positively expressed in both conditions and use minimump_p_value, which is a combinded p_val to only keep significant markers
-            conserved.markers = conserved.markers[conserved.markers$dataset2_avg_log2FC >= 0 &
-                                                    conserved.markers$dataset1_avg_log2FC >= 0 &
-                                                    conserved.markers$minimump_p_val <= 0.01, ] %>%  #select top5 (using many genes significantly increases computation time)
-              mutate(cluster = levelsList[[j]]) #add a coloumn with the identity of the cluster
+            conserved.markers <- conserved.markers %>%
+              mutate("cluster" = levelsList[[j]]) %>%
+              mutate("gene" = rownames(conserved.markers))
 
-            top_conservedMarkers = sort_by_minimump_p_val(selectedNumGenes, conserved.markers)
+            conserved.markers<- conserved.markers[conserved.markers$dataset2_avg_logFC >= 0 &
+                                                    conserved.markers$dataset1_avg_logFC >= 0 &
+                                                    conserved.markers$minimump_p_val <= 0.01, ]  #select top5 (using many genes significantly increases computation time) #add a coloumn with the identity of the cluster
+
+             top_conservedMarkers<- conserved.markers %>%
+              slice_head(n = selectedNumGenes)
+          #  top_conservedMarkers = sort_by_minimump_p_val(selectedNumGenes, conserved.markers)
             #append those to a top_conservedMarkers_combined table
             top_conservedMarkers_combined = rbind(top_conservedMarkers_combined,
                                                   top_conservedMarkers)
@@ -135,8 +140,7 @@ findConservedMarkers <-
       #add subsetsize col
       top_conservedMarkers_combined = top_conservedMarkers_combined %>%
         as.data.frame() %>%
-        mutate("subsetSize" = subsetSize) %>%
-        mutate("gene" = rownames(top_conservedMarkers_combined))
+        mutate("subsetSize" = subsetSize)
 
       sumStatMarkerTable1 = rbind(sumStatMarkerTable1, top_conservedMarkers_combined)
 
@@ -157,8 +161,8 @@ findConservedMarkers <-
     #plot upsetPlot via combined table
     upsetPlotMG = upset(
       combinedMarkersTable,
-      sets = names(combinedMarkersTable)[6:2],
-      nsets = 5,
+      sets = names(combinedMarkersTable)[ncol(combinedMarkersTable):2],
+      nsets = ncol(combinedMarkersTable)-1,
       number.angles = 30,
       point.size = 2.5,
       line.size = 1,
@@ -228,7 +232,7 @@ findConservedMarkers <-
       }
     )
     # update progress bar value
-   # update_modal_progress(1)
+    update_modal_progress(1)
     return(combinedMarkersTable)
   }
 
@@ -267,21 +271,21 @@ tableParserCMG <- function(sumStatMarkerTable1) {
 #' @export
 #' @return Returns a Reactive value of the top conserved markers after sorting
 
-
-sort_by_minimump_p_val <-
-  function(selectedNumGenes, conserved.markers) {
-    conserved.markers <-
-      conserved.markers %>% #seperate coefficient and exponent to sort
-      mutate("coefficient" = as.numeric(as.character(
-        str_extract(conserved.markers$minimump_p_val, regex("([^e]+)"))
-      ))) %>%
-      mutate("exponent" = as.numeric(as.character(
-        str_extract(conserved.markers$minimump_p_val, regex("[^e]*$"))
-      ))) %>%
-      arrange(exponent, coefficient) %>% select(-exponent,-coefficient) %>%
-      slice_head(n = selectedNumGenes) #select top 5 rows (most statistically significant)
-
-
-    return(conserved.markers)
-
-  }
+#
+# sort_by_minimump_p_val <-
+#   function(selectedNumGenes, conserved.markers) {
+#     conserved.markers <-
+#       conserved.markers %>% #seperate coefficient and exponent to sort
+#       mutate("coefficient" = as.numeric(as.character(
+#         str_extract(conserved.markers$minimump_p_val, regex("([^e]+)"))
+#       ))) %>%
+#       mutate("exponent" = as.numeric(as.character(
+#         str_extract(conserved.markers$minimump_p_val, regex("[^e]*$"))
+#       ))) %>%
+#       arrange(exponent, coefficient) %>% select(-exponent,-coefficient) %>%
+#       slice_head(n = selectedNumGenes) #select top 5 rows (most statistically significant)
+#
+#
+#     return(conserved.markers)
+#
+#   }

@@ -119,8 +119,8 @@ findMarkerGenes <-
     #plot upsetPlot via combined table
     upsetPlotMG = upset(
       combinedMarkersTable,
-      sets = names(combinedMarkersTable[6:2]),
-      nsets = 5,
+      sets = names(combinedMarkersTable)[ncol(combinedMarkersTable):2],
+      nsets = ncol(combinedMarkersTable)-1,
       number.angles = 30,
       point.size = 2.5,
       line.size = 1,
@@ -128,7 +128,7 @@ findMarkerGenes <-
       sets.x.label = "Marker genes per subset",
       order.by = "freq",
       keep.order = TRUE,
-      text.scale = c(1.5, 1.5, 1, 1.2, 1.75, 1.3)
+      text.scale = c(1.5, 1.5, 1.2, 1.2, 1.75, 1.3)
     )
 
     print("line 121 findMG")
