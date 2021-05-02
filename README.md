@@ -5,7 +5,7 @@ scSubset: R package to evaluate optimal cell count in single cell transcriptomic
 ## About 
 scSubset is designed to help users identify the sufficient number of cells to use in their scRNA-seq experiments. The package interactively interrogates deposited single cell datasets and down-samples them into smaller subsets having 20%, 40%, 60% and 80% of the parent dataset, respectively. Clustering projections of each subset is compared to that of the reference using the adjusted Rand index (ARI) and normalized mutual information (NMI) scores. The degree of overlap of differentially expressed genes and conserved marker genes between subsets and the reference dataset will also be computed. 
 
-####*To help in the identification of a suitable subset size, the following criteria can be used:*
+#### *To help in the identification of a suitable subset size, the following criteria can be used:*
   1) Subsets resulting in a high marginal increase of the NMI/ARI scores. 
   2) Subsets whose identified conserved marker genes and/or differentially expressed genes have a high degree of overlap with the full dataset.
   3) Subsets that can sufficiently resolve genes of specific biological interest in a given dataset.
