@@ -19,13 +19,14 @@ integrated dataset of 10K cells. Computation of conserved marker genes for integ
 
 
 ## Installation 
-
-`library("devtools")
+```
+library("devtools")
 install_github("rzaied/scSubset")
 
 # Run the application
 library(scSubset)
-scSubsetGo()`
+scSubsetGo()
+```
 
 ## Licence
 This project is licensed under the MIT License.
