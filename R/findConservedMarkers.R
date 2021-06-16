@@ -62,7 +62,7 @@ findConservedMarkers <-
             session,
             seuratObjectsList,
             selectedNumGenes) {
-    #carrying on from findDEgenes_integration.R script,
+
     #combinedtop conserved markers table holds marker genes for one subset at a time
     top_conservedMarkers_combined = c()
     #table holds all marker genes of all subsets
@@ -72,15 +72,14 @@ findConservedMarkers <-
       DefaultAssay(seuratObjectsList[[i]]) <- "RNA"
       subsetSize = paste(nrow(seuratObjectsList[[i]]@meta.data) / 1000, "K", sep =
                            "")
-      print(subsetSize)
+
       #update progress bar, following on from 0.5
       update_modal_progress((i + 5) / 10.5)
-      #list to easily acess the clusters in each subset
+      #list to easily access the clusters in each subset
       levelsList = levels(seuratObjectsList[[i]])
       #for each cluster in list
       for (j in 1:length(levelsList)) {
-        #logfc.threshold is by default 0.25, increasing to 0.4 speeds up the function but could miss weaker signals
-        #Find conserved marker genes (marker genes shared b/w both conditions)
+
         tryCatch({
           conserved.markers <-
             FindConservedMarkers(
@@ -88,13 +87,11 @@ findConservedMarkers <-
               ident.1 = levelsList[[j]],
               grouping.var = "orig.ident",
               verbose = TRUE,
-              min.pct = 0.7,
+              min.pct = 0.3,
               logfc.threshold = 0.3
             )
-          print("line 81")
 
           #in case a cluster doesn't exist in a condition, only one condition will be used (i.e. only 5 cols)
-
           #if tested cluster is present in both conditions (i.e. there are 12 cols) carry on, otherwise skip that cluster
           if (ncol(conserved.markers) == 12)  {
             #only keep markers that are positively expressed in both conditions and use minimump_p_value, which is a combinded p_val to only keep significant markers
@@ -102,41 +99,43 @@ findConservedMarkers <-
               mutate("cluster" = levelsList[[j]]) %>%
               mutate("gene" = rownames(conserved.markers))
 
-            conserved.markers<- conserved.markers[conserved.markers$dataset2_avg_logFC >= 0 &
-                                                    conserved.markers$dataset1_avg_logFC >= 0 &
+            conserved.markers<- conserved.markers[conserved.markers$dataset2_avg_log2FC >= 0.3 &
+                                                    conserved.markers$dataset1_avg_log2FC >= 0.3 &
                                                     conserved.markers$minimump_p_val <= 0.01, ]  #select top5 (using many genes significantly increases computation time) #add a coloumn with the identity of the cluster
 
-             top_conservedMarkers<- conserved.markers %>%
-              slice_head(n = selectedNumGenes)
-          #  top_conservedMarkers = sort_by_minimump_p_val(selectedNumGenes, conserved.markers)
+            top_conservedMarkers<- conserved.markers
+
+
+
+            if (i == length(seuratObjectsList)) {
+              #to only look at top 10 of
+              top_conservedMarkers <- conserved.markers %>%
+                slice_head(n = selectedNumGenes)
+
+            }
+
+
             #append those to a top_conservedMarkers_combined table
             top_conservedMarkers_combined = rbind(top_conservedMarkers_combined,
                                                   top_conservedMarkers)
-            print("line 99")
           }
 
         },
         error = function(cond) {
-          # message(cond)
+
           # Choose a return value in case of error
           return(NA)
         },
         warning = function(cond) {
-          #message(cond)
+
           # Choose a return value in case of warning
           return(NULL)
         },
         finally = {
-          #things to execute regardless
+
         })
       }
 
-      #append tables to list
-      #  conservedMarkers_Tables_List[[i]] = combinedMarkers_top
-
-      # this is just so that the tables dont get overwritten and are saved in env for me
-      assign(paste("top_marker_", subsetSize, sep = ""),
-             top_conservedMarkers_combined)
       #add subsetsize col
       top_conservedMarkers_combined = top_conservedMarkers_combined %>%
         as.data.frame() %>%
@@ -152,12 +151,7 @@ findConservedMarkers <-
     #add numbered row names to table
     rownames(sumStatMarkerTable1) <- c(1:nrow(sumStatMarkerTable1))
 
-    #Round Pval
-
     combinedMarkersTable <- tableParserCMG(sumStatMarkerTable1)
-    #finally, rename the coloumns in combinedMarkersTable
-    #  names(combinedMarkersTable) = combinedMarkerGenesTableHeader
-    print("line 135 findCMG")
     #plot upsetPlot via combined table
     upsetPlotMG = upset(
       combinedMarkersTable,
@@ -172,9 +166,8 @@ findConservedMarkers <-
       keep.order = TRUE,
       text.scale = c(1.5, 1.5, 1.2, 1.2, 1.75, 1.3)
     )
-    print("line 150 findCMG")
-    #remove unwanted objects
 
+    #remove unwanted objects
     #rm(conservedMarkers_Tables_List)
 
     output$UpsetMarker <- renderPlot({
@@ -232,7 +225,7 @@ findConservedMarkers <-
       }
     )
     # update progress bar value
-    update_modal_progress(1)
+   # update_modal_progress(1)
     return(combinedMarkersTable)
   }
 
@@ -247,7 +240,7 @@ findConservedMarkers <-
 
 tableParserCMG <- function(sumStatMarkerTable1) {
   #PARSING TABLE FOR USE IN UPSETR**************************************
-  #this code record its precesnce/absence of each marker in each of the other subsets
+  #this code record its presence/absence of each marker in each of the other subsets
   combinedMarkersTable <- sumStatMarkerTable1
 
   combinedMarkersTable$Cluster_Marker = paste(combinedMarkersTable$cluster,
@@ -258,34 +251,10 @@ tableParserCMG <- function(sumStatMarkerTable1) {
     pivot_wider(names_from = subsetSize , values_from = presence) %>%
     replace(is.na(.), 0) %>% as.data.frame()
 
-  print("line 256 findMG")
+  #to only look at
+  combinedMarkersTable <- combinedMarkersTable %>%
+    filter(!(combinedMarkersTable[, ncol(combinedMarkersTable)] == "0"))
+
+
   return(combinedMarkersTable)
 }
-
-
-#' Function that sorts and select top n genes
-#'
-#' @param conserved.markers Reactive value containing conserved marker genes of a cluster in a given subset
-#' @param selectedNumGenes Reactive value containing number of Deferentially expressed genes to be tested for
-#' as chosen by the user
-#' @export
-#' @return Returns a Reactive value of the top conserved markers after sorting
-
-#
-# sort_by_minimump_p_val <-
-#   function(selectedNumGenes, conserved.markers) {
-#     conserved.markers <-
-#       conserved.markers %>% #seperate coefficient and exponent to sort
-#       mutate("coefficient" = as.numeric(as.character(
-#         str_extract(conserved.markers$minimump_p_val, regex("([^e]+)"))
-#       ))) %>%
-#       mutate("exponent" = as.numeric(as.character(
-#         str_extract(conserved.markers$minimump_p_val, regex("[^e]*$"))
-#       ))) %>%
-#       arrange(exponent, coefficient) %>% select(-exponent,-coefficient) %>%
-#       slice_head(n = selectedNumGenes) #select top 5 rows (most statistically significant)
-#
-#
-#     return(conserved.markers)
-#
-#   }

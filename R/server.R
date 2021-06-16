@@ -6,27 +6,23 @@
 server <- function(input, output, session) {
   observeEvent(input$submitButton,
                {
-                 #assign uploaded file to seurat.data object
-                 print("here")
+
                  dataset1_name<-"dataset1"
                  dataset2_name<-"dataset2"
 
                  if (is.null(input$file1)) {
-                   print("empy files")
+
                    shinyalert("Please upload at least one Chromium 10X scRNA-seq dataset")
 
                  }
                  else if (grepl(".h5", input$file1$name[1], fixed = TRUE)) {
 
                    path=dirname(input$file1$datapath[1])
-                   print(path)
-                   #assign dataset name (for "project" in seurat)
-                   #assign manually to avoid errors
+
 
                    seurat1 <-
                      callModule(read_h5,
                                 "ui", dataset1_name, path)
-                   print("server line 27")
 
                  }
 
@@ -38,20 +34,16 @@ server <- function(input, output, session) {
                    seurat1 <-
                      callModule(read_10x,
                                 "ui", dataset1_name, uploadsDF )
-                   print("server line 40")
 
                  }
 
                  else {
-                   print("wrong file")
                    shinyalert(
                      "Please use the required file formats
                      (.h5 file or matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files )"
                    )
                  }
 
-
-                 print("line 45")
                  #require file input to proceed
                  shiny::req(input$file1)
 
@@ -61,16 +53,10 @@ server <- function(input, output, session) {
 
                  ##assign mito gene pattern
                  mito <- input$organism
-                 print(mito)
-
                  #assign costPerMil
                  costPerMil <- as.numeric(input$cost)
-                 print(costPerMil)
 
-                 #assign costPerMil
                  depthPerCell <- as.numeric(input$depth)
-                 print(depthPerCell)
-
                  #assign # of genes per cluster to test for
                  selectedNumGenes <- as.numeric(input$numGenes)
 
@@ -78,10 +64,11 @@ server <- function(input, output, session) {
                  res <- input$resolution
 
 
+
+
                  #assigns custom name for second dataset, only if integration option was selected
                  if (input$integrationChoice) {
                    if (is.null(input$file2)) {
-                     print("empy files")
                      shinyalert("Please upload a second Chromium 10X scRNA-seq dataset for integration analysis")
 
                    }
@@ -96,7 +83,6 @@ server <- function(input, output, session) {
                      seurat2 <-
                        callModule(read_h5,
                                   "ui", dataset2_name, path)
-                     print("server line 27")
 
                     }
 
@@ -109,19 +95,14 @@ server <- function(input, output, session) {
                      seurat2 <-
                        callModule(read_10x,
                                   "ui", dataset2_name, uploadsDF )
-                     print("server line 40")
 
                    }
 
                  }
 
                  # update progress bar value
-                 print("line 77")
+
                  update_modal_progress(0.03)
-
-                 print("line 105")
-
-
                  # update progress bar value
 
                  update_modal_progress(0.05)
@@ -156,7 +137,6 @@ server <- function(input, output, session) {
                      )
                    )
 
-                   print("line 140")
 
                    #The callModule function is used within the Server function
                    #to call functions that creat reactive output
@@ -218,7 +198,6 @@ server <- function(input, output, session) {
 
                    dataset1_name<-"dataset1"
                    dataset2_name<-"dataset2"
-                   print("line 162")
                    combinedDEgenesTable <- callModule(
                      findDEgenes,
                      "DEgenesTab",
@@ -259,7 +238,6 @@ server <- function(input, output, session) {
                  else {
                    analysis_type = "Single dataset"
                    # update progress bar value
-                   print("line 218")
                    update_modal_progress(0.10)
                    #when only one dataset is selected
 
@@ -275,7 +253,6 @@ server <- function(input, output, session) {
                      )
                    )
 
-                   print("line 233")
 
                    appendTab(
                      inputId = "mainPage",
@@ -288,9 +265,6 @@ server <- function(input, output, session) {
                      )
                    )
 
-                   print("line 245")
-
-                   print("line 248")
                    seuratObjectsList <-
                      callModule(scClustering,
                                 "clusteringTab",
@@ -313,15 +287,12 @@ server <- function(input, output, session) {
                      inputId = "mainPage",
                      tabPanel(
                        id = "markerGenesTab",
-                       title = "Marker genes",
+                       title = "Differentially expressed genes (cluster biomarkers)",
                        icon = icon("bullseye"),
                        findMarkerGenesUI("markerGenesTab"),
                        value = "markerGenesTab"
                      )
                    )
-
-                  print("start of find markers")
-                  print(seuratObjectsList)
                    combinedMarkersTable <-
                      callModule(findMarkerGenes,
                                 "markerGenesTab",
@@ -385,11 +356,12 @@ server <- function(input, output, session) {
                  )
                  mito = "^MT-"
                  res = 0.4
-                 selectedNumGenes = 5
+                 selectedNumGenes = 10
                  costPerMil = 8
                  depthPerCell = 50000
                  #libraryPrepCost=2000
                  analysis_type = "Single dataset"
+
 
                  update_modal_progress(0.10)
                  #running example data UI

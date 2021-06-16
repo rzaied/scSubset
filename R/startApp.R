@@ -6,6 +6,7 @@ scSubsetGo <- function() {
 
   if (interactive()){
     #load packages
+
     library(shiny)
     library(shinythemes)
     library(Seurat)
@@ -27,13 +28,13 @@ scSubsetGo <- function() {
     library(cowplot)
     library(patchwork)
     library(stringr)
+    library(MAST)
 
     options(shiny.maxRequestSize=500*1024^2)
     app <- shinyApp(ui = shinyUI(ui),
                     server = shinyServer(server))
     runApp(app)
 
-   # runApp("R")
   }
 }
 

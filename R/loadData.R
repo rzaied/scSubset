@@ -8,7 +8,6 @@
 #'
 read_h5 <- function(input, output, session, dataset_name, path) {
 
-    print("line 22")
     filePath <- paste0(path, "/", "0.h5")
     print(filePath)
     tryCatch({
@@ -17,7 +16,7 @@ read_h5 <- function(input, output, session, dataset_name, path) {
 
     },
     error = function(cond) {
-      print("line 18")
+
       sendSweetAlert(
         session = session,
         title = "Data format error",
@@ -25,12 +24,9 @@ read_h5 <- function(input, output, session, dataset_name, path) {
               accepted files are either .h5 file or matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files ",
         type = "error"
       )
-      # return()
+
     })
-  # })
-    print("seurat obj made")
-    print(dataset_name)
-    print(seurat)
+
     return(seurat)
 }
 
@@ -43,10 +39,8 @@ read_h5 <- function(input, output, session, dataset_name, path) {
 #'
 read_10x <- function(input, output, session, dataset_name, uploadsDF) {
 
-    print("line 44")
     #Name of the temporary directory where files are uploaded
     tempdirname <- dirname(uploadsDF$datapath[1])
-    print("line 55")
     print(tempdirname)
     print(uploadsDF$datapath[1])
 
@@ -61,7 +55,6 @@ read_10x <- function(input, output, session, dataset_name, uploadsDF) {
     #files can now be read
     seurat.data <- tryCatch({
       seurat.data <- Read10X(data.dir = tempdirname)
-      print("load data 64")
       seurat<- make_seurat_obj(seurat.data, dataset_name)
     },
     error = function(cond) {
@@ -72,11 +65,9 @@ read_10x <- function(input, output, session, dataset_name, uploadsDF) {
               accepted files are either .h5 file or matrix.mtx, genes.tsv/features.tsv and barcodes.tsv files ",
         type = "error"
       )
-      # return()
+
     })
-    print("seurat obj made")
-    print(dataset_name)
-    print(seurat)
+
   return(seurat)
 }
 

@@ -1,21 +1,18 @@
 
 #'  #' Single Cell Integration Tab Server
 #'
-#' @param seurat Reactive value containing seurat object
+#' @paraexportm seurat Reactive value containing seurat object
 #' @param seurat2 Reactive value containing seurat object
 #' @param mito Reactive value containing user input for mitochondrial genes pattern
 #' @param res Reactive value containing user input for clustering resolution
 #' @param dataset Reactive value containg user input of uploaded dataset name
 #'
-#' @export
+#' @
 #' @return Returns a Reactive value containing list of downsampled seurat objects
 #'  with reduced dimensions (PCA data) and scaled counts
 #'
 scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
   seuratObjectsList <- reactiveValues()
-
-  print(mito)
-  print(res)
   dim = 15
 
   # The [[ operator can add columns to object metadata. This is a great place to stash QC stats
@@ -29,8 +26,6 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
                     nFeature_RNA < 8000 & percent.mt < 14)
   seurat2 = subset(seurat2, subset = nFeature_RNA > 200 &
                      nFeature_RNA < 8000 & percent.mt < 14)
-
-  print("line 44 integration")
  # seurat = SCTransform(seurat, vars.to.regress = "percent.mt", verbose = TRUE)
 
   seurat <- NormalizeData(seurat, verbose = TRUE)
@@ -78,10 +73,7 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
     #subsetting
     subset = subset(seurat.combined, cells = sample(Cells(seurat.combined), i))
     subset <- RunPCA(subset, npcs = 30, verbose = FALSE)
-    #t-SNE and Clustering
-    #subset<- RunTSNE(subset, reduction="pca")
-    #TSNEPlot(subset, reduction= "tsne", label=TRUE)
-    #TSNEPlot(subset, reduction= "tsne", split.by="orig.ident")
+
     subset <- RunUMAP(subset, reduction = "pca", dims = 1:dim)
     subset <- FindNeighbors(subset, reduction = "pca", dims = 1:dim)
     subset <- FindClusters(subset, resolution = res)
@@ -103,10 +95,7 @@ scIntegrate <- function(input, output, session, seurat, seurat2, mito, res) {
   #call renaming clusters function
   seuratObjectsList <- renameClusters(seuratObjectsList)
 
-  print("line 100 integr")
   combinedBarplot <- projectClusters(seuratObjectsList)
-
-  print("line 102 integration")
   output$barplot <- renderPlot({
     combinedBarplot
   })

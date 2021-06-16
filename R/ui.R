@@ -123,7 +123,7 @@ ui <- tagList(
 
           textInput(
             inputId = "numGenes",
-            value = "5",
+            value = "10",
             label = "Number of highly significant genes to test per cluster, per subset"
           ),
 

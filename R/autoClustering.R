@@ -192,25 +192,11 @@ scClustering <-
             res,
             dataset1_name) {
     seuratObjectsList <- reactiveValues()
-
-    print(mito)
-    print(res)
-
-    print("autoclust line 211")
-
-    #assign dataset name (for "project" in seurat)
-    print(dataset1_name)
-    seurat
     dim = 15
-    print("line 193, autoclustering")
-    # The [[ operator can add columns to object metadata. This is a great place to stash QC stats
-    #use ^MT- for human data and mt for mouse
     seurat[["percent.mt"]] = PercentageFeatureSet(seurat, pattern = mito)
-
     seurat = subset(seurat, subset = nFeature_RNA > 200 &
                       nFeature_RNA < 8000 & percent.mt < 14)
 
-    print("line 201, autoclustering")
     #Normalization
     seurat = NormalizeData(seurat,
                            normalization.method = "LogNormalize",
@@ -230,18 +216,17 @@ scClustering <-
     incrementation = minSubset
     #empty list to store generated subsets
     seuratObjectsList = c()
-    print("line 221, autoclustering")
+
+
     x = 0
-    #seq(starting nuber, ending number, incrementation)
     for (i in seq(from = minSubset, to = numCells, by = incrementation)) {
       print(i)
       x = x + 1
       #update progress bar
       update_modal_progress(x / 10)
       print(x)
-      #subsetting
-      subset = subset(seurat, cells = sample(Cells(seurat), i))
 
+      subset = subset(seurat, cells = sample(Cells(seurat), i))
       #Plot variable features
       subset = FindVariableFeatures(subset,
                                     selection.method = "vst",
@@ -257,10 +242,7 @@ scClustering <-
       #Plot UMAP
       #p1 <- DimPlot(subset, reduction = "umap", group.by = "orig.ident")
       p2 <- DimPlot(subset, reduction = "umap", label = TRUE)
-
-      #DimPlot(subset, reduction = "umap", split.by = "orig.ident")
       assign(paste("UMAP", x, sep = ""), p2)
-      #DimPlot(subset, reduction = "umap", label=T, pt.size = 1) + NoLegend()
 
       #append subset to list
       seuratObjectsList = c(seuratObjectsList, subset)
@@ -268,12 +250,8 @@ scClustering <-
     }
     #call renaming clusters function
     seuratObjectsList <- renameClusters(seuratObjectsList)
-
-
-
     combinedBarplot <- projectClusters(seuratObjectsList)
 
-    print("line 283 autoclust")
 
     output$barplot <- renderPlot({
       combinedBarplot
@@ -317,7 +295,6 @@ scClustering <-
 scVarGenes <- function(input, output, session, seuratObjectsList) {
   #for each object
   for (i in 1:5) {
-    print(i)
 
     top10 = head(VariableFeatures(seuratObjectsList[[i]]), 10)
 
@@ -387,13 +364,12 @@ Mode <- function(x) {
 renameClusters <- function(seuratObjectsList) {
   ref_subset=length(seuratObjectsList)
   #function to rename clusters after subsetting
-  print("line 354 autoclustering")
   #for each object
   for (i in (length(seuratObjectsList)):1) {
     #make an empty list of size [max cluster#] to store new names of query subset
     newNames_list <-
       vector(mode = "character", length = max(as.numeric(seuratObjectsList[[i]]@active.ident)))
-    #for each cluster in second object
+    #for each cluster in reference
     for (j in 0:max(as.numeric(as.character(seuratObjectsList[[i]]@active.ident)))) {
       #select all cell_ids where seurat_cluster = j from query subset
       clusterTable <-
@@ -401,7 +377,6 @@ renameClusters <- function(seuratObjectsList) {
           seuratObjectsList[[i]]@meta.data,
           seuratObjectsList[[i]]@meta.data$seurat_clusters == j
         )
-      print("line 369 autoclustering")
       #find corresponding cell ids in the reference dataset via merging
       overlappingCells = merge(clusterTable, seuratObjectsList[[ref_subset]]@meta.data, by = 0)
 
@@ -409,14 +384,11 @@ renameClusters <- function(seuratObjectsList) {
       predominantCluster = as.numeric(as.character(Mode(
         overlappingCells$seurat_clusters.y
       )))
-      print("line 378 autoclustering")
-      #In position of predominantcluster, store cluster label, j (as per reference label)
-      #list starts at 1 while clusters start at 0 so predominantCluster+1
+      #In position of predominantcluster, store cluster label, j (as per reference dataset)
       newNames_list[[j + 1]] = predominantCluster
       #repeat for next cluster in first table
-      newNames_list
     }
-    print("line 385 autoclustering")
+
     #Rename all clusters in first subset as per reference subset
     names(newNames_list) = levels(seuratObjectsList[[i]])
     seuratObjectsList[[i]] = RenameIdents(seuratObjectsList[[i]], newNames_list)
@@ -426,7 +398,7 @@ renameClusters <- function(seuratObjectsList) {
   return(seuratObjectsList)
 }
 
-#' Function to project downsampled subsets against the parent dataset and score projection quality
+#' Function to project down sampled subsets against the parent dataset and score projection quality
 #'
 #' @param seuratObjectsList Reactive value containg list of downsampled seurat objects
 #'  with reduced dimensions (PCA data), scaled counts, and cluster labels that corresponds across subsets
@@ -437,16 +409,13 @@ renameClusters <- function(seuratObjectsList) {
 #'
 projectClusters <- function(seuratObjectsList) {
   #CALCULTE PROJECTION QUALITY************************************
-  #table to store cluster similarity calculation
   ref_subset=length(seuratObjectsList)
   projectionQualityTable = c()
   for (i in 1:(length(seuratObjectsList))) {
-    print("line 404 autoclustering")
-    overlappingCells = merge(seuratObjectsList[[i]]@active.ident,
+   overlappingCells = merge(seuratObjectsList[[i]]@active.ident,
                              seuratObjectsList[[ref_subset]]@active.ident,
                              by =
                                0)
-    print("line 409 autoclustering")
 
 
     overlappingCells$x<-as.numeric(as.character(overlappingCells$x))
@@ -455,13 +424,13 @@ projectClusters <- function(seuratObjectsList) {
     #compute ARI and NMI
     ARI = ARI(overlappingCells$x, overlappingCells$y)
     NMI = NMI(overlappingCells$x, overlappingCells$y)
-    print("439 autoclust")
+
 
     subsetSize = paste(nrow(seuratObjectsList[[i]]@meta.data) / 1000, "K", sep =
                          "")
     projectionQualityTable = rbind(projectionQualityTable, c(i, subsetSize, ARI, NMI))
 
-    print("444 autoclust")
+
   }
   #num column is used to specify levels
   colnames(projectionQualityTable) = c("num","Subset", "ARI", "NMI")
@@ -469,7 +438,6 @@ projectClusters <- function(seuratObjectsList) {
   projectionQualityTable$ARI = as.numeric(as.character(projectionQualityTable$ARI))
   projectionQualityTable$NMI = as.numeric(as.character(projectionQualityTable$NMI))
 
-  print("454 autoclust")
   #to reorder the table by increasing size of subset
  projectionQualityTable$Subset <-
    factor(projectionQualityTable$Subset, levels = projectionQualityTable$Subset[order(projectionQualityTable$num)])
@@ -477,15 +445,12 @@ projectClusters <- function(seuratObjectsList) {
   projectionQualityTable = melt(projectionQualityTable[,2:4], id.vars = 'Subset')
   colnames(projectionQualityTable)[2] = "Key"
 
-  print("462 autoclust")
-  #plot barplot
   combinedBarplot = ggplot(projectionQualityTable, aes(x = Subset, y = value, fill =
                                                          Key)) +
     geom_bar(stat = 'identity', position = 'dodge') +
     theme_minimal() + scale_fill_brewer(palette = "BuPu")
 
-  print("472 autoclust")
 
-  #**************************
   return(combinedBarplot)
 }
+

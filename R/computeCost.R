@@ -38,24 +38,21 @@ computeCostUI <- function(id) {
 computeCost <-
   function(input, output, session, analysis_type, combinedConsMarkersTable,
            markersTable, seuratObjectsList, costPerMil, depthPerCell) {
-    print("cost 24")
 
     scCostTable=c()
     #for each subset
     for (i in 1:(length(seuratObjectsList))) {
-      print(i)
-      print("cost 30")
+
       #find number of cells in dataset
       numCells = nrow(seuratObjectsList[[i]]@meta.data)
-      print(numCells)
       #find number of clusters
       numClusters=max(as.numeric(levels
                                  (seuratObjectsList[[i]]@meta.data$seurat_clusters)[seuratObjectsList[[i]]@meta.data$seurat_clusters]))
 
-
+      numClusters = numClusters+1 #since count starts at 0
       #find total number of marker genes in the reference dataset
       reference_num_markers=nrow(markersTable[!(markersTable[,ncol(markersTable)]==0),])
-      print("cost 41")
+
 
       #remove rows where marker doesn't exist (marker==0) in both reference and query datasets
       markersTable2<-markersTable[!(markersTable[,(i+1)]==0 & markersTable[,ncol(markersTable)]==0),]
@@ -64,16 +61,13 @@ computeCost <-
       markers_overlap= colSums(markersTable2[,(i+1), drop=FALSE]==markersTable2[,ncol(markersTable2), drop=FALSE])/reference_num_markers*100
       markers_overlap<-round(markers_overlap, digits = 2)
 
-      print("cost 50")
-
-
       #find total depth per subset
       depth=depthPerCell*numCells
 
       #find total cost per subset
       cost=((costPerMil*depth)/1000000)
       cost<-round(cost, digits = 3)
-      print("cost 59")
+
       #repeat for conserved marker genes, if user chose to compute it
       if (!combinedConsMarkersTable==0) {
         reference_num_consv_markers=nrow(combinedConsMarkersTable[!(combinedConsMarkersTable[,ncol(combinedConsMarkersTable)]==0),])
@@ -91,21 +85,20 @@ computeCost <-
       }
     }
     scCostTable=data.frame(scCostTable)
-    print("cost 77")
+
     if (analysis_type=="integration" && combinedConsMarkersTable==0) {
-      print(analysis_type)
+
       names(scCostTable)=c("Number of cells", "number of clusters", " % Overlapping DE genes", "cost estimate")
     }
 
     if (analysis_type=="integration" && !combinedConsMarkersTable==0) {
-      print(analysis_type)
+
       names(scCostTable)=c("Number of cells", "number of clusters", " % Overlapping conserved markers", " % Overlapping DE genes", "cost estimate")
     }
     if (analysis_type=="Single dataset") {
-      print(analysis_type)
       names(scCostTable)=c("Number of cells", "number of clusters", " % Overlapping markers", "cost estimate")
     }
-    print("cost 91")
+
 
     #table output
     output$costTable <-
@@ -123,8 +116,6 @@ computeCost <-
       ),
       rownames = F)
 
-
-    print("cost 110")
     output$downloadCostData <- downloadHandler(
       filename = function() {
         paste('costTable_', Sys.Date(), '.csv', sep = '')
@@ -135,3 +126,4 @@ computeCost <-
     )
 
   }
+
