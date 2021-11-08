@@ -15,10 +15,10 @@ scSubset is designed to help users identify the sufficient number of cells to us
 ![ARI/NMI plot](https://github.com/rzaied/scSubset/blob/master/figures/PBMCs_ari_nmi.png)
 
 
-For each cluster in the full dataset, the top 10 marker genes (MGs) were compared with the marker genes of each subset and an UpSet plot is used to demonstrate the degree of overlap. In this dataset, 70 of 150 MGs were resolved across all subsets. 20 MGs were unique to the reference data set and another 20 were uniquely shared between the 40%, 60%, 80% and the full dataset. 
+For each cluster in the full dataset, the top 10 marker genes (MGs) were compared with the marker genes of each subset and an UpSet plot is used to demonstrate the degree of overlap. In this dataset, 70 of 150 MGs were resolved across all subsets. 20 MGs were unique to the reference data set and another 20 were uniquely shared between the 40%, 60%, 80% and the full dataset:
 
 
-![UUpSet plot](https://github.com/rzaied/scSubset/blob/master/figures/PBMCs_upset_plot.png)
+![UpSet plot](https://github.com/rzaied/scSubset/blob/master/figures/PBMCs_upset_plot.png)
 
 Considering the slight improvement in results when increasing the dataset from 60% to 80%, we reasoned that 60% coverage would have been sufficient for this dataset and had the capacidt of saving ~£1700 of sequencing costs: 
 
