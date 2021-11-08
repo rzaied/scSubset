@@ -21,8 +21,12 @@ integrated dataset of 10K cells. Computation of conserved marker genes for integ
 
 ## Dependancies
 
-* shiny (>= 1.5.0)  * shinythemes (>= 1.1.2)
-* Seurat (>= 4.0.0), DT (>= 0.17), 
+------------ | -------------
+shiny (>= 1.5.0) | shinythemes (>= 1.1.2)
+Seurat (>= 4.0.0) | Content in the second column
+
+
+* , DT (>= 0.17), 
     shinycssloaders (>= 0.3), shinydashboard (>= 0.7.1), shinyjs (>= 2.0.0), shinybusy (>= 0.2.0),
     aricode (>= 0.1.2), ggplot2 (>= 3.3.1), reshape2 (>= 1.4.4), UpSetR (>= 1.4.0), hdf5r (>= 1.3.2),
     tidyverse (>= 1.3.0), metap (>= 1.3), shinyWidgets (>= 0.5.4), cowplot (>= 1.0.0), patchwork (>= 1.0.0), 
