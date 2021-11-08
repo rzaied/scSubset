@@ -3,9 +3,11 @@
 scSubset: R package to evaluate optimal cell count in single cell transcriptomics
 
 ## About 
-scSubset is designed to help users identify the sufficient number of cells to use in their scRNA-seq experiments. The package interactively interrogates deposited single cell datasets and down-samples them into smaller subsets having 20%, 40%, 60% and 80% of the parent dataset, respectively. Clustering projections of each subset is compared to that of the reference using the adjusted Rand index (ARI) and normalized mutual information (NMI) scores. The degree of overlap of differentially expressed genes and conserved marker genes between subsets and the reference dataset will also be computed.
+scSubset is designed to help users identify the sufficient number of cells to use in their scRNA-seq experiments. The package interactively interrogates deposited single cell datasets and down-samples them into smaller subsets having 20%, 40%, 60% and 80% of the parent dataset, respectively. Clustering projections of each subset is compared to that of the reference using the adjusted Rand index (ARI) and normalized mutual information (NMI) scores. The degree of overlap of differentially expressed genes (DEGs) and conserved marker genes (CMGs) between subsets and the reference dataset will also be computed.
+
 
 ![overview figure](https://github.com/rzaied/scSubset/blob/master/figures/overview.png)
+
 
 
 ## Usage Scenario
@@ -15,12 +17,18 @@ scSubset is designed to help users identify the sufficient number of cells to us
 ![ARI/NMI plot](https://github.com/rzaied/scSubset/blob/master/figures/PBMCs_ari_nmi.png)
 
 
-For each cluster in the full dataset, the top 10 marker genes (MGs) were compared with the marker genes of each subset and an UpSet plot is used to demonstrate the degree of overlap. In this dataset, 70 of 150 MGs were resolved across all subsets. 20 MGs were unique to the reference data set and another 20 were uniquely shared between the 40%, 60%, 80% and the full dataset:
+The top 10 marker genes (MGs) from each cluster in the full dataset were compared with the MGs of each subset and an UpSet plot was used to demonstrate the degree of overlap. In this dataset, 70 of 150 MGs were resolved across all subsets. 20 MGs were unique to the reference data set and another 20 were uniquely shared between the 40%, 60%, 80% and the full dataset:
 
 
 ![UpSet plot](https://github.com/rzaied/scSubset/blob/master/figures/PBMCs_upset_plot.png)
 
-Considering the slight improvement in results when increasing the dataset from 60% to 80%, we reasoned that 60% coverage would have been sufficient for this dataset and had the capacidt of saving ~£1700 of sequencing costs: 
+The 60% and 80% subsets have the same number of shared MGs with the reference. However, the identities of the shared MGs differ. scSubset provides summary statistics allowing users to identify subsets that sufficiently resolve genes of biological interest:
+
+![MG stats table](https://github.com/rzaied/scSubset/blob/master/figures/MG_stats.png)
+
+
+
+Considering the slight improvement in ARI/NMI scores when increasing the dataset size from 60% to 80%, and the percent overlap of MGs, we reasoned that 60%  would have been a sufficient coverage relative to a 10K PBMC dataset. Such an allocation would have had the capacity of saving ~£1700 of sequencing costs. This is estimated by ScSubset depending on user input and displayed in a summary table as shown below: 
 
 Number of cells	 | number of clusters | % Overlapping markers	| ARI | NMI | Sequencing cost
 ------------ | ------------- | ------------- | ------------- | ------------- | -------------
@@ -30,9 +38,7 @@ Number of cells	 | number of clusters | % Overlapping markers	| ARI | NMI | Sequ
 8408 (80%) | 14 |	80.00	| 0.919 |	0.916 |	3,363.2
 10510 |	15 | 100.00	| 1.000	| 1.000	| 4,204.0
 
-scSubset further provides tables showing the resolved MGs. This allows researchers to also consider subsets that resolve genes of biological interest:
 
-![MG stats table](https://github.com/rzaied/scSubset/blob/master/figures/MG_stats.png)
 
 #### *To help in the identification of a suitable subset size, the following criteria can be used:*
   1) Subsets resulting in a high marginal increase of the NMI/ARI scores. 
