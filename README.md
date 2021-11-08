@@ -19,6 +19,13 @@ Users can upload single or paired datasets; for each dataset, an .h5 file or a m
 and "^mt-" for mouse datasets, etc. The desired number of genes to resolve (default is top 10) from the reference dataset should be selected. The resolution should also be selected (default is 0.5). For a single dataset consisting of 10K cells, the analysis could take ~20 minutes. The same is true for an
 integrated dataset of 10K cells. Computation of conserved marker genes for integrated datasets is optional and could add around an extra hour to the analysis.
 
+## Dependancies
+
+shiny (>= 1.5.0), shinythemes (>= 1.1.2) , Seurat (>= 4.0.0), DT (>= 0.17), 
+    shinycssloaders (>= 0.3), shinydashboard (>= 0.7.1), shinyjs (>= 2.0.0), shinybusy (>= 0.2.0),
+    aricode (>= 0.1.2), ggplot2 (>= 3.3.1), reshape2 (>= 1.4.4), UpSetR (>= 1.4.0), hdf5r (>= 1.3.2),
+    tidyverse (>= 1.3.0), metap (>= 1.3), shinyWidgets (>= 0.5.4), cowplot (>= 1.0.0), patchwork (>= 1.0.0), 
+    shinyalert (>= 2.0.0), multtest (>= 2.42.0), stringr (>= 1.4.0), MAST (>= 1.16.0)
 
 ## Installation 
 ```
