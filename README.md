@@ -24,10 +24,10 @@ Considering the slight improvement in results when increasing the dataset from 6
 
 Number of cells	 | number of clusters | % Overlapping markers	| ARI | NMI | Sequencing cost
 ------------ | ------------- | ------------- | ------------- | ------------- | -------------
-2102 (20%) |	9	60.00 | 0.602 |	0.701	| 840.8
-4204 (40%) | 11	73.33 | 0.790 |	0.825 |	1,681.6
-6306 (60%) | 12	80.00 |	0.799 |	0.857 |	2,522.4
-8408 (80%) | 14	80.00	| 0.919 |	0.916 |	3,363.2
+2102 (20%) |	9 | 60.00 | 0.602 |	0.701	| 840.8
+4204 (40%) | 11 |	73.33 | 0.790 |	0.825 |	1,681.6
+6306 (60%) | 12 |	80.00 |	0.799 |	0.857 |	2,522.4
+8408 (80%) | 14 |	80.00	| 0.919 |	0.916 |	3,363.2
 10510 |	15 | 100.00	| 1.000	| 1.000	| 4,204.0
 
 scSubset further provides tables showing the resolved MGs. This allows researchers to also consider subsets that resolve genes of biological interest:
