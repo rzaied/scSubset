@@ -32,7 +32,7 @@ Number of cells	 | number of clusters | % Overlapping markers	| ARI | NMI | Sequ
 
 scSubset further provides tables showing the resolved MGs. This allows researchers to also consider subsets that resolve genes of biological interest:
 
-![UUpSet plot](https://github.com/rzaied/scSubset/blob/master/figures/MGstats.png)
+![MG stats table](https://github.com/rzaied/scSubset/blob/master/figures/MG_stats.png)
 
 #### *To help in the identification of a suitable subset size, the following criteria can be used:*
   1) Subsets resulting in a high marginal increase of the NMI/ARI scores. 
