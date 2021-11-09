@@ -31,7 +31,7 @@ User case 1: Bob is an early career researcher and for his fellowship he wants t
 User case 2: Alice is working on clinical samples from a large cohort study. Before she can proceed with sequencing of over 100 patient samples, Alice completes a preliminary study. While the results look promising, Alice is wondering if she can optimize the number of sequenced cells as the full experiment is coming to a much higher cost than anticipated. Alice tries scSubset to check if she can obtain the same biological insight with fewer cells. Sadly, it turns out that in this case Alice would still need to use 100%. 
 
 
-## Usage Scenario
+## Example dataset
 
 10K peripheral mononuclear cells (PBMCs) from a healthy donor obtained from 10X Genomics was used for this example. At a resolution of 0.3, scSubset analysis shows that using 60% of the dataset reduces the adjusted rand index (ARI) and normalized mutual information scores (NMI) from 1.0 to to 0.8 and 0.85, respectively:
 
@@ -49,7 +49,7 @@ The 60% and 80% subsets have the same number of shared MGs with the reference. H
 
 
 
-Considering the slight improvement in ARI/NMI scores when increasing the dataset size from 60% to 80%, and the percent overlap of MGs, we reasoned that 60%  would have been a sufficient coverage relative to a 10K PBMC dataset. Such an allocation would have had the capacity of saving ~£1700 of sequencing costs. Sequencing cost is estimated by ScSubset depending on user input and displayed in a summary table as shown below: 
+Considering the slight improvement in ARI/NMI scores when increasing the dataset size from 60% to 80%, and the percent overlap of MGs, we reasoned that 60%  would have been a sufficient coverage relative to a 10K PBMC dataset. Such an allocation would have had the capacity of saving ~£1700 of sequencing costs. Sequencing cost is estimated by scSubset depending on user input and displayed in a summary table as shown below: 
 
 Number of cells	 | number of clusters | % Overlapping markers	| ARI | NMI | Sequencing cost
 ------------ | ------------- | ------------- | ------------- | ------------- | -------------
