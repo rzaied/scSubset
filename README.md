@@ -21,9 +21,14 @@ scSubsetGo()
 ## About 
 scSubset is designed to help users identify the sufficient number of cells to use in their scRNA-seq experiments. The package interactively interrogates deposited single cell datasets and down-samples them into smaller subsets having 20%, 40%, 60% and 80% of the parent dataset, respectively. Clustering projections of each subset is compared to that of the reference using the adjusted Rand index (ARI) and normalized mutual information (NMI) scores. The degree of overlap of marker genes (MGs), differentially expressed genes (DEGs), and conserved marker genes (CMGs) between subsets and the reference dataset will also be computed.
 
-
 ![overview figure](https://github.com/rzaied/scSubset/blob/master/figures/overview.png)
 
+
+## When should you use scSubset? 
+
+User case 1: Bob is an early career researcher and for his fellowship he wants to propose a new study based on scRNA-seq lung data. Single cell experiments are expensive and Bob’s budget is limited. He also requires to provide details of the number of biological replicates and sequencing costs. Bob decided to use a publicly available scRNA-seq data to check what's the lowest number of cells he can sequence and still keep the population of interest. He applies scSubset and finds out that reducing the number of sequenced cell to just 50% would be sufficient. This allows Bob to increase the number of replicates to obtain more robust results. 
+ 
+User case 2: Alice is working on clinical samples from a large cohort study. Before she can proceed with sequencing of over 100 patient samples, Alice completes a preliminary study. While the results look promising, Alice is wondering if she can optimize the number of sequenced cells as the full experiment is coming to a much higher cost than anticipated. Alice tries scSubset to check if she can obtain the same biological insight with fewer cells. Sadly, it turns out that in this case Alice would still need to use 100%. 
 
 
 ## Usage Scenario
